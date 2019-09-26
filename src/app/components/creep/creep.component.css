@@ -1,0 +1,32 @@
+.creep {
+	position: absolute;
+	width: 10px;
+	height: 10px;
+	background-color: white;
+	border: solid 1px black;
+}
+
+.creep.p1 {
+	background-color: lightblue;
+}
+.creep.p2 {
+	background-color: rgb(246, 125, 125);
+}
+.creep.shooting {
+	border-color: yellow;
+}
+
+.healthbar {
+	position: absolute;
+	width: 10px;
+	height: 3px;
+	background-color: red;
+	border: solid 1px black;
+}
+
+.health {
+	background-color: green;
+	position: relative;
+	float: left;
+	height: 100%;
+}
