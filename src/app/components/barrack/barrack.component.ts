@@ -18,7 +18,7 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 
 	private subscriptions: Array<Subscription> = [];
 
-	private meleeModifier: IStats;
+	public meleeModifier: IStats;
 
 	public level = 1;
 	public respawnTime = 3;
@@ -87,11 +87,12 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	private spawnCreep() {
 		const creep = new Basher();
 		creep.player = this.player;
-		creep.speed = this.player === 1 ? this.baseCreepSpeed : -this.baseCreepSpeed;
-		creep.maxSpeed = this.player === 1 ? this.baseCreepSpeed : -this.baseCreepSpeed;
 		creep.x = this.player === 1 ? 50 : 480,
-		creep.y = 20;
+		creep.y = 10;
 		creep.statsModifier = this.meleeModifier;
+
+		// La direction ne devrait pas être définie ici.
+		creep.baseStats.maxSpeed = this.player === 1 ? this.baseCreepSpeed : -this.baseCreepSpeed;
 		this.engine.creeps.push(creep);
 
 		setTimeout(() => {

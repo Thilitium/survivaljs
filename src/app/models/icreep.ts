@@ -15,4 +15,5 @@ export interface ICreep extends IStats {
 	lastShotTime: Date;
 	type: CreepType;
 	statsModifier: IStats;
+	baseStats: IStats;
 }
