@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ICreep } from '../models/icreep';
 import { EventmanagerService } from './eventmanager.service';
+import { CreepType } from '../constants/enums';
 
 @Injectable({
 	providedIn: 'root'
@@ -42,8 +43,11 @@ export class EngineService {
 
 					if (collisionCreep.player === 2) {
 						if (collisionCreep.health > 0 && collisionCreep.x <= c1.x + c1.width + c1.range) {
-							target = collisionCreep;
-							break;
+							if (c1.type === CreepType.Ranged ||
+							   (c1.type === CreepType.Melee && collisionCreep.type !== CreepType.Ranged)) {
+								target = collisionCreep;
+								break;
+							}
 						}
 					}
 				}
@@ -55,16 +59,6 @@ export class EngineService {
 						frontCreepBlocking = c1;
 					}
 				}
-
-				// Adjust speed and target.
-				if (frontCreepBlocking) {
-					c1.speed = 0;
-				} else {
-					c1.speed = c1.maxSpeed;
-				}
-				if (target !== c1.target) {
-					c1.target = target;
-				}
 			} else {
 				if (i > 0) {
 					// Check for targets.
@@ -73,8 +67,11 @@ export class EngineService {
 
 						if (collisionCreep.player === 1) {
 							if (collisionCreep.health > 0 && collisionCreep.x + collisionCreep.width >= c1.x - c1.range) {
-								target = collisionCreep;
-								break;
+								if (c1.type === CreepType.Ranged ||
+									(c1.type === CreepType.Melee && collisionCreep.type !== CreepType.Ranged)) {
+									target = collisionCreep;
+									break;
+								}
 							}
 						}
 					}
@@ -85,16 +82,15 @@ export class EngineService {
 						frontCreepBlocking = c2;
 					}
 				}
+			}
 
-				// Adjust speed and target.
-				if (frontCreepBlocking) {
-					c1.speed = 0;
-				} else {
-					c1.speed = c1.maxSpeed;
-				}
-				if (target !== c1.target) {
-					c1.target = target;
-				}
+			if (frontCreepBlocking) {
+				c1.speed = 0;
+			} else if (c1.target !== null && c1.type === CreepType.Ranged) {
+				// For a range creep, we stop dead if we have a target.
+				c1.speed = 0;
+			} else {
+				c1.speed = c1.player === 1 ? c1.maxSpeed : -c1.maxSpeed;
 			}
 		}
 	}

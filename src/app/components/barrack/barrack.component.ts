@@ -7,6 +7,7 @@ import { EventmanagerService } from 'src/app/services/eventmanager.service';
 import { Subscription } from 'rxjs';
 import { Basher } from 'src/app/models/creeps/basher';
 import { IStats } from 'src/app/models/istats';
+import { Archer } from 'src/app/models/creeps/archer';
 
 @Component({
 	selector: 'app-barrack',
@@ -19,6 +20,7 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	private subscriptions: Array<Subscription> = [];
 
 	public meleeModifier: IStats;
+	public rangedModifier: IStats;
 
 	public level = 1;
 	public respawnTime = 3;
@@ -46,10 +48,20 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 			range: 0,
 			value: 0
 		};
-	 }
+
+		this.rangedModifier = {
+			maxSpeed: 0,
+			attack: 0,
+			attackSpeed: 0,
+			maxHealth: 0,
+			range: 0,
+			value: 0
+		};
+	}
 
 	ngOnInit() {
-		this.spawnCreep();
+		this.spawnRangedCreepProcess();
+		this.spawnMeleeCreepProcess();
 	}
 
 	public upgradeHp() {
@@ -84,19 +96,31 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 		this.gold += creepKilled.value;
 	}
 
-	private spawnCreep() {
+	private spawnMeleeCreepProcess() {
 		const creep = new Basher();
 		creep.player = this.player;
 		creep.x = this.player === 1 ? 50 : 480,
 		creep.y = 10;
 		creep.statsModifier = this.meleeModifier;
 
-		// La direction ne devrait pas être définie ici.
-		creep.baseStats.maxSpeed = this.player === 1 ? this.baseCreepSpeed : -this.baseCreepSpeed;
 		this.engine.creeps.push(creep);
 
 		setTimeout(() => {
-			this.spawnCreep();
+			this.spawnMeleeCreepProcess();
+		}, this.respawnTime * 1000);
+	}
+
+	private spawnRangedCreepProcess() {
+		const creep = new Archer();
+		creep.player = this.player;
+		creep.x = this.player === 1 ? 50 : 480,
+		creep.y = 10;
+		creep.statsModifier = this.meleeModifier;
+
+		this.engine.creeps.push(creep);
+
+		setTimeout(() => {
+			this.spawnRangedCreepProcess();
 		}, this.respawnTime * 1000);
 	}
 
