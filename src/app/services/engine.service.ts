@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Creep } from '../models/creep';
+import { ICreep } from '../models/icreep';
 import { EventmanagerService } from './eventmanager.service';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class EngineService {
-	public creeps: Array<Creep>;
+	public creeps: Array<ICreep>;
 
 	constructor(private events: EventmanagerService) {
 		this.creeps = [];
@@ -31,8 +31,8 @@ export class EngineService {
 
 		for (let i = 0; i < creepsOrderedLeftToRight.length; ++i) {
 			const c1 = creepsOrderedLeftToRight[i];
-			let target: Creep = null;
-			let frontCreepBlocking: Creep = null;
+			let target: ICreep = null;
+			let frontCreepBlocking: ICreep = null;
 			c1.speed = c1.maxSpeed;
 
 			if (c1.player === 1) {
@@ -117,9 +117,6 @@ export class EngineService {
 				}
 			} else {
 				creep.shooting = false;
-				if (creep.lastShotTime) {
-					creep.lastShotTime = null;
-				}
 			}
 		});
 	}

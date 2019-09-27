@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Creep } from '../../models/creep';
+import { ICreep } from '../../models/icreep';
 import { EventmanagerService } from 'src/app/services/eventmanager.service';
 
 @Component({
@@ -8,7 +8,7 @@ import { EventmanagerService } from 'src/app/services/eventmanager.service';
 	styleUrls: ['./creep.component.css']
 })
 export class CreepComponent implements OnInit {
-	@Input() data: Creep;
+	@Input() data: ICreep;
 
 	public shootingDisplay = false;
 	get pctHealth(): number {

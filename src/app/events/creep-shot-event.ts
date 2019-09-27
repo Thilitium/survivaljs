@@ -1,6 +1,6 @@
-import { Creep } from '../models/creep';
+import { ICreep } from '../models/icreep';
 import { ICreepEvent } from './icreep-event';
 
 export class CreepShotEvent implements ICreepEvent {
-	creep: Creep;
+	creep: ICreep;
 }

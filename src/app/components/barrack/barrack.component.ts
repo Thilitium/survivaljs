@@ -1,10 +1,12 @@
 import { Component, OnInit, ViewChild, Input, ElementRef, OnDestroy } from '@angular/core';
 import { Barrack } from '../../models/barrack';
-import { Creep } from '../../models/creep';
+import { ICreep } from '../../models/icreep';
 import { EngineService } from '../../services/engine.service';
 import { PlayerPipe } from 'src/app/pipes/player.pipe';
 import { EventmanagerService } from 'src/app/services/eventmanager.service';
 import { Subscription } from 'rxjs';
+import { Basher } from 'src/app/models/creeps/basher';
+import { IStats } from 'src/app/models/istats';
 
 @Component({
 	selector: 'app-barrack',
@@ -16,17 +18,16 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 
 	private subscriptions: Array<Subscription> = [];
 
+	private meleeModifier: IStats;
+
 	public level = 1;
 	public respawnTime = 3;
-	public baseCreepHp = 10;
-	public baseCreepAtk = 3;
 	public baseCreepSpeed = 1;
-	public baseCreepRange = 35;
 	public baseCreepValue = 10;
 	public upgradeCost = 20;
 	public gold = 0;
 
-	get creeps(): Array<Creep> {
+	get creeps(): Array<ICreep> {
 		return this.playerPipe.transform(this.engine.creeps, this.player);
 	}
 
@@ -36,6 +37,15 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 				this.getGoldForCreep(e.creep);
 			}
 		}));
+
+		this.meleeModifier = {
+			maxSpeed: 0,
+			attack: 0,
+			attackSpeed: 0,
+			maxHealth: 0,
+			range: 0,
+			value: 0
+		};
 	 }
 
 	ngOnInit() {
@@ -44,55 +54,44 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 
 	public upgradeHp() {
 		if (this.gold >= this.upgradeCost) {
-			this.baseCreepHp++;
+			this.meleeModifier.maxHealth++;
 			this.gold -= 20;
 		}
 	}
 
 	public upgradeAtk() {
 		if (this.gold >= this.upgradeCost) {
-			this.baseCreepAtk++;
+			this.meleeModifier.attack++;
 			this.gold -= 20;
 		}
 	}
 
 	public upgradeSpeed() {
 		if (this.gold >= this.upgradeCost) {
-			this.baseCreepSpeed++;
+			this.meleeModifier.maxSpeed += .5;
 			this.gold -= 20;
 		}
 	}
 
 	public upgradeRange() {
 		if (this.gold >= this.upgradeCost) {
-			this.baseCreepRange++;
+			this.meleeModifier.range++;
 			this.gold -= 20;
 		}
 	}
 
-	private getGoldForCreep(creepKilled: Creep) {
+	private getGoldForCreep(creepKilled: ICreep) {
 		this.gold += creepKilled.value;
 	}
 
 	private spawnCreep() {
-		const creep = {
-			speed: this.player === 1 ? this.baseCreepSpeed : -this.baseCreepSpeed,
-			maxSpeed : this.player === 1 ? this.baseCreepSpeed : -this.baseCreepSpeed,
-			range: this.baseCreepRange,
-			x: this.player === 1 ? 50 : 500,
-			y: 20,
-			player : this.player,
-			target : null,
-			width: 10,
-			height: 10,
-			attack: this.baseCreepAtk,
-			health: this.baseCreepHp,
-			maxHealth: this.baseCreepHp,
-			attackSpeed: 1,
-			value: this.baseCreepValue,
-			shooting: false,
-			lastShotTime: null
-		};
+		const creep = new Basher();
+		creep.player = this.player;
+		creep.speed = this.player === 1 ? this.baseCreepSpeed : -this.baseCreepSpeed;
+		creep.maxSpeed = this.player === 1 ? this.baseCreepSpeed : -this.baseCreepSpeed;
+		creep.x = this.player === 1 ? 50 : 480,
+		creep.y = 20;
+		creep.statsModifier = this.meleeModifier;
 		this.engine.creeps.push(creep);
 
 		setTimeout(() => {

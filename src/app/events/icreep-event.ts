@@ -1,5 +1,5 @@
-import { Creep } from '../models/creep';
+import { ICreep } from '../models/icreep';
 
 export class ICreepEvent {
-	public creep: Creep;
+	public creep: ICreep;
 }

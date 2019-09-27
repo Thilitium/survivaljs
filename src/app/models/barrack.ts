@@ -1,7 +1,7 @@
-import { Creep } from './creep';
+import { ICreep } from './icreep';
 
 export interface Barrack {
 	level: number;
 	respawnTime: number;
-	creeps: Array<Creep>;
+	creeps: Array<ICreep>;
 }
