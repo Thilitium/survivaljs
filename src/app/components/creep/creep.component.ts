@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ICreep } from '../../models/icreep';
 import { EventmanagerService } from 'src/app/services/eventmanager.service';
+import { DrawEvent } from 'src/app/events/draw-event';
 
 @Component({
 	selector: 'app-creep',
@@ -12,7 +13,7 @@ export class CreepComponent implements OnInit {
 
 	public shootingDisplay = false;
 	get pctHealth(): number {
-		return this.data.health * 100 / this.data.maxHealth;
+		return this.data.health / this.data.maxHealth;
 	}
 
 	constructor(private events: EventmanagerService) {
@@ -21,6 +22,7 @@ export class CreepComponent implements OnInit {
 				this.shootingAnimation();
 			}
 		});
+		this.events.onDraw2.subscribe((e) => this.draw(e));
 	}
 
 	ngOnInit() {
@@ -33,7 +35,21 @@ export class CreepComponent implements OnInit {
 		}, 50);
 	}
 
-	private draw(ctx: CanvasRenderingContext2D) {
-		ctx.fillRect(this.data.x, this.data.y, this.data.width, this.data.height);
+	private draw(e: DrawEvent) {
+		// Black border
+		e.ctx.fillStyle = 'rgb(0, 0, 0)';
+		e.ctx.fillRect(this.data.x, this.data.y, this.data.width, this.data.height);
+
+		// Creep
+		e.ctx.fillStyle = this.data.player === 1 ? 'rgb(0, 0, 255)' : 'rgb(255, 0, 0)';
+		e.ctx.fillRect(this.data.x + 1, this.data.y + 1, this.data.width - 2, this.data.height - 2);
+
+		// Health bar border
+		e.ctx.fillStyle = 'rgb(0, 0, 0)';
+		e.ctx.fillRect(this.data.x, this.data.y - 7, this.data.width, 5);
+
+		// Health bar
+		e.ctx.fillStyle = 'rgb(0, 255, 0)';
+		e.ctx.fillRect(this.data.x + 1, this.data.y - 6, this.pctHealth * (this.data.width - 2), 3);
 	}
 }

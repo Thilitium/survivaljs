@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs';
 import { Basher } from 'src/app/models/creeps/basher';
 import { IStats } from 'src/app/models/istats';
 import { Archer } from 'src/app/models/creeps/archer';
+import { DrawEvent } from 'src/app/events/draw-event';
 
 @Component({
 	selector: 'app-barrack',
@@ -39,6 +40,7 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 				this.getGoldForCreep(e.creep);
 			}
 		}));
+		this.subscriptions.push(this.events.onDraw1.subscribe(e => this.draw(e)));
 
 		this.meleeModifier = {
 			maxSpeed: 0,
@@ -60,7 +62,8 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	}
 
 	ngOnInit() {
-		this.spawnRangedCreepProcess();
+		// TODO: Implement ranged creeps properly.
+		// this.spawnRangedCreepProcess();
 		this.spawnMeleeCreepProcess();
 	}
 
@@ -94,6 +97,14 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 
 	private getGoldForCreep(creepKilled: ICreep) {
 		this.gold += creepKilled.value;
+	}
+
+	private draw(e: DrawEvent) {
+		const x = this.player === 1 ? 0 : 500;
+		const color = this.player === 1 ? 'rgb(0, 0, 255)' : 'rgb(255, 0, 0)';
+
+		e.ctx.fillStyle = color;
+		e.ctx.fillRect(x, 0, 50, 50);
 	}
 
 	private spawnMeleeCreepProcess() {

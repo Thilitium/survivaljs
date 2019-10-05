@@ -16,7 +16,8 @@ export class RenderService {
 		this.event = {
 			ctx: this.ctx
 		};
-		requestAnimationFrame(this.render);
+
+		requestAnimationFrame(() => this.render());
 	}
 
 	private render() {
@@ -24,6 +25,6 @@ export class RenderService {
 		this.events.onDraw1.emit(this.event);
 		this.events.onDraw2.emit(this.event);
 
-		requestAnimationFrame(this.render);
+		requestAnimationFrame(() => this.render());
    	}
 }

@@ -20,7 +20,7 @@ export class BackgroundComponent implements OnInit {
 	}
 
 	private draw(e: DrawEvent) {
-		e.ctx.fillStyle = '#FFFFFF';
+		e.ctx.fillStyle = 'rgb(255, 255, 255)';
 		e.ctx.fillRect(0, 0, 800, 600);
 	}
 }
