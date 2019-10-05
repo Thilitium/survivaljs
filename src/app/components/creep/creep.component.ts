@@ -1,28 +1,30 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { ICreep } from '../../models/icreep';
 import { EventmanagerService } from 'src/app/services/eventmanager.service';
 import { DrawEvent } from 'src/app/events/draw-event';
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-creep',
 	templateUrl: './creep.component.html',
 	styleUrls: ['./creep.component.css']
 })
-export class CreepComponent implements OnInit {
+export class CreepComponent implements OnInit, OnDestroy {
 	@Input() data: ICreep;
 
-	public shootingDisplay = false;
-	get pctHealth(): number {
+	private subscriptions: Array<Subscription> = [];
+	private shootingDisplay = false;
+	private get pctHealth(): number {
 		return this.data.health / this.data.maxHealth;
 	}
 
 	constructor(private events: EventmanagerService) {
-		this.events.onCreepShot.subscribe(e => {
+		this.subscriptions.push(this.events.onCreepShot.subscribe(e => {
 			if (e.creep === this.data) {
 				this.shootingAnimation();
 			}
-		});
-		this.events.onDraw2.subscribe((e) => this.draw(e));
+		}));
+		this.subscriptions.push(this.events.onDraw2.subscribe((e) => this.draw(e)));
 	}
 
 	ngOnInit() {
@@ -36,8 +38,8 @@ export class CreepComponent implements OnInit {
 	}
 
 	private draw(e: DrawEvent) {
-		// Black border
-		e.ctx.fillStyle = 'rgb(0, 0, 0)';
+		// Black border (or yellow if attacking)
+		e.ctx.fillStyle = this.shootingDisplay ? 'rgb(255, 255, 0)' : 'rgb(0, 0, 0)';
 		e.ctx.fillRect(this.data.x, this.data.y, this.data.width, this.data.height);
 
 		// Creep
@@ -48,8 +50,18 @@ export class CreepComponent implements OnInit {
 		e.ctx.fillStyle = 'rgb(0, 0, 0)';
 		e.ctx.fillRect(this.data.x, this.data.y - 7, this.data.width, 5);
 
+		// Health bar background
+		e.ctx.fillStyle = 'rgb(255, 0, 0)';
+		e.ctx.fillRect(this.data.x + 1, this.data.y - 6, this.data.width - 2, 3);
+
 		// Health bar
 		e.ctx.fillStyle = 'rgb(0, 255, 0)';
 		e.ctx.fillRect(this.data.x + 1, this.data.y - 6, this.pctHealth * (this.data.width - 2), 3);
+	}
+
+	ngOnDestroy(): void {
+		this.subscriptions.forEach(s => {
+			s.unsubscribe();
+		});
 	}
 }

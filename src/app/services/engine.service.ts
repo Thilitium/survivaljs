@@ -19,7 +19,8 @@ export class EngineService {
 
 	private gameLoop() {
 		setTimeout(() => {
-			this.checkCollisionsAndTargets();
+			this.checkTargets();
+			this.checkCollisions();
 			this.attackProcess();
 			this.checkDeadCreeps();
 			this.moveCreeps();
@@ -27,31 +28,15 @@ export class EngineService {
 		}, 16);
 	}
 
-	private checkCollisionsAndTargets() {
+	private checkCollisions() {
 		const creepsOrderedLeftToRight = this.creeps.sort((a, b) => a.x - b.x);
 
 		for (let i = 0; i < creepsOrderedLeftToRight.length; ++i) {
 			const c1 = creepsOrderedLeftToRight[i];
-			let target: ICreep = null;
 			let frontCreepBlocking: ICreep = null;
 			c1.speed = c1.maxSpeed;
 
 			if (c1.player === 1) {
-				// Check for targets.
-				for (let j = i + 1; j < this.creeps.length; ++j) {
-					const collisionCreep = creepsOrderedLeftToRight[j];
-
-					if (collisionCreep.player === 2) {
-						if (collisionCreep.health > 0 && collisionCreep.x <= c1.x + c1.width + c1.range) {
-							if (c1.type === CreepType.Ranged ||
-							   (c1.type === CreepType.Melee && collisionCreep.type !== CreepType.Ranged)) {
-								target = collisionCreep;
-								break;
-							}
-						}
-					}
-				}
-
 				// Check if a creep is blocking
 				if (i < this.creeps.length - 1) {
 					const c2 = creepsOrderedLeftToRight[i + 1];
@@ -61,21 +46,6 @@ export class EngineService {
 				}
 			} else {
 				if (i > 0) {
-					// Check for targets.
-					for (let j = i - 1; j >= 0; --j) {
-						const collisionCreep = creepsOrderedLeftToRight[j];
-
-						if (collisionCreep.player === 1) {
-							if (collisionCreep.health > 0 && collisionCreep.x + collisionCreep.width >= c1.x - c1.range) {
-								if (c1.type === CreepType.Ranged ||
-									(c1.type === CreepType.Melee && collisionCreep.type !== CreepType.Ranged)) {
-									target = collisionCreep;
-									break;
-								}
-							}
-						}
-					}
-
 					// Check if a creep is blocking
 					const c2 = creepsOrderedLeftToRight[i - 1];
 					if (c2.x + c2.width >= c1.x) {
@@ -93,6 +63,32 @@ export class EngineService {
 				c1.speed = c1.player === 1 ? c1.maxSpeed : -c1.maxSpeed;
 			}
 		}
+	}
+
+	private checkTargets() {
+		this.creeps.forEach(creep => {
+			let minDist = 99999;
+			let target = null;
+
+			this.creeps.forEach(other => {
+				if (creep !== other && creep.player !== other.player) {
+					const dist = Math.sqrt(
+						Math.pow((other.x + other.width / 2) - (creep.x + creep.width / 2), 2) +
+						Math.pow((other.y + other.height / 2) - (creep.y + creep.height / 2), 2)
+					);
+
+					// We assume that the creep is a square and we add the half of the diagonal to account
+					// for the size of the creep when taking range into account.
+					// TODO: User the angle to have a better precision.
+					if (dist < minDist && dist < (creep.range + (creep.width * Math.SQRT2 / 2) + (other.width * Math.SQRT2 / 2))) {
+						minDist = dist;
+						target = other;
+					}
+				}
+			});
+
+			creep.target = target;
+		});
 	}
 
 	private attackProcess() {

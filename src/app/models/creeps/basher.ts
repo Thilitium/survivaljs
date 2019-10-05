@@ -9,7 +9,7 @@ export class Basher extends CreepBase {
 		maxHealth: 10,
 		maxSpeed: 1,
 		range: 1,
-		attack: 3,
+		attack: 5,
 		attackSpeed: 1,
 		value: 10
 	};
