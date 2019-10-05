@@ -32,4 +32,8 @@ export class CreepComponent implements OnInit {
 			this.shootingDisplay = false;
 		}, 50);
 	}
+
+	private draw(ctx: CanvasRenderingContext2D) {
+		ctx.fillRect(this.data.x, this.data.y, this.data.width, this.data.height);
+	}
 }

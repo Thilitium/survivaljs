@@ -7,13 +7,15 @@ import { GameComponent } from './components/game/game.component';
 import { BarrackComponent } from './components/barrack/barrack.component';
 import { CreepComponent } from './components/creep/creep.component';
 import { PlayerPipe } from './pipes/player.pipe';
+import { BackgroundComponent } from './components/background/background.component';
 
 @NgModule({
 	declarations: [
 		AppComponent,
 		GameComponent,
 		BarrackComponent,
-		CreepComponent
+		CreepComponent,
+		BackgroundComponent
 	],
 	imports: [
 		BrowserModule,
