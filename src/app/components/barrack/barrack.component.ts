@@ -111,9 +111,11 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 		const creep = new Basher();
 		creep.player = this.player;
 		creep.x = this.player === 1 ? 250 : 740,
+		//creep.y = this.player === 1 ? 276 : 314;
 		creep.y = 295;
 		creep.statsModifier = this.meleeModifier;
-		creep.destination = this.player === 1 ? { x: 550, y: 295 } : { x: 250, y: 295};
+		creep.destination = this.player === 1 ? { x: 540, y: 295 } : { x: 250, y: 295 };
+		creep.health = creep.maxHealth;
 
 		this.engine.creeps.push(creep);
 
@@ -128,7 +130,6 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 		creep.x = this.player === 1 ? 50 : 480,
 		creep.y = 10;
 		creep.statsModifier = this.meleeModifier;
-
 		this.engine.creeps.push(creep);
 
 		setTimeout(() => {

@@ -164,12 +164,11 @@ export class EngineService {
 			if (!creep.targetInRange && creep.currentDestination) {
 				const path: ICoords[] = this.navMesh.findPath(creep, creep.currentDestination);
 				if (path) {
-					const deltaX = Math.abs(path[1].x - path[0].x);
-					const deltaY = Math.abs(path[1].y - path[0].y);
-					console.log(path.length);
+					const deltaX = path[1].x - path[0].x;
+					const deltaY = path[1].y - path[0].y;
 					const newCoords: ICoords = {
-						x: deltaX !== 0 ? this.lerp(path[0].x, path[1].x, creep.speed / (path[1].x - path[0].x)) : creep.x,
-						y: deltaY !== 0 ? this.lerp(path[0].y, path[1].y, creep.speed / (path[1].y - path[0].y)) : creep.y
+						x: deltaX !== 0 ? this.lerp(path[0].x, path[1].x, creep.speed / deltaX) : creep.x,
+						y: deltaY !== 0 ? this.lerp(path[0].y, path[1].y, creep.speed / deltaY) : creep.y
 					};
 					creep.x = newCoords.x;
 					creep.y = newCoords.y;

@@ -1,0 +1,96 @@
+Date : 2019-10-06 20:28:53
+Directory : f:\_SRC_\survivaljs\src\app
+Total : 58 files,  923 codes, 15 comments, 208 blanks, all 1146 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| TypeScript |         47 |        851 |         15 |        188 |      1,054 |
+| CSS        |          5 |         54 |          0 |         13 |         67 |
+| HTML       |          5 |         18 |          0 |          6 |         24 |
+| JSON       |          1 |          0 |          0 |          1 |          1 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++----------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                               | files      | code       | comment    | blank      | total      |
++----------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                  |         58 |        923 |         15 |        208 |      1,146 |
+| components                                         |         16 |        371 |          7 |         87 |        465 |
+| services                                           |          6 |        227 |          8 |         44 |        279 |
+| components\barrack                                 |          4 |        177 |          2 |         36 |        215 |
+| models                                             |         12 |        138 |          0 |         27 |        165 |
+| components\creep                                   |          4 |        104 |          5 |         24 |        133 |
+| models\creeps                                      |          6 |         85 |          0 |         18 |        103 |
+| events                                             |         12 |         66 |          0 |         24 |         90 |
+| components\background                              |          4 |         54 |          0 |         16 |         70 |
+| pipes                                              |          3 |         38 |          0 |          8 |         46 |
+| components\game                                    |          4 |         36 |          0 |         11 |         47 |
+| constants                                          |          4 |         19 |          0 |          6 |         25 |
++----------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++----------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                           | language   | code       | comment    | blank      | total      |
++----------------------------------------------------+------------+------------+------------+------------+------------+
+| app.component.css                                  | CSS        |          0 |          0 |          1 |          1 |
+| app.component.html                                 | HTML       |          1 |          0 |          1 |          2 |
+| app.component.spec.ts                              | TypeScript |         27 |          0 |          5 |         32 |
+| app.component.ts                                   | TypeScript |          9 |          0 |          2 |         11 |
+| app.module.ts                                      | TypeScript |         27 |          0 |          3 |         30 |
+| components\background\background.component.css     | CSS        |          0 |          0 |          1 |          1 |
+| components\background\background.component.html    | HTML       |          2 |          0 |          1 |          3 |
+| components\background\background.component.spec.ts | TypeScript |         20 |          0 |          6 |         26 |
+| components\background\background.component.ts      | TypeScript |         32 |          0 |          8 |         40 |
+| components\barrack\barrack.component.css           | CSS        |         25 |          0 |          6 |         31 |
+| components\barrack\barrack.component.html          | HTML       |         12 |          0 |          1 |         13 |
+| components\barrack\barrack.component.spec.ts       | TypeScript |         20 |          0 |          6 |         26 |
+| components\barrack\barrack.component.ts            | TypeScript |        120 |          2 |         23 |        145 |
+| components\creep\creep.component.css               | CSS        |         29 |          0 |          4 |         33 |
+| components\creep\creep.component.html              | HTML       |          0 |          0 |          2 |          2 |
+| components\creep\creep.component.spec.ts           | TypeScript |         20 |          0 |          6 |         26 |
+| components\creep\creep.component.ts                | TypeScript |         55 |          5 |         12 |         72 |
+| components\game\game.component.css                 | CSS        |          0 |          0 |          1 |          1 |
+| components\game\game.component.html                | HTML       |          3 |          0 |          1 |          4 |
+| components\game\game.component.spec.ts             | TypeScript |         20 |          0 |          6 |         26 |
+| components\game\game.component.ts                  | TypeScript |         13 |          0 |          3 |         16 |
+| constants\constants.spec.ts                        | TypeScript |          6 |          0 |          2 |          8 |
+| constants\constants.ts                             | TypeScript |          2 |          0 |          1 |          3 |
+| constants\enums.spec.ts                            | TypeScript |          6 |          0 |          2 |          8 |
+| constants\enums.ts                                 | TypeScript |          5 |          0 |          1 |          6 |
+| events\creep-died-event.spec.ts                    | TypeScript |          6 |          0 |          2 |          8 |
+| events\creep-died-event.ts                         | TypeScript |          5 |          0 |          2 |          7 |
+| events\creep-killed-event.spec.ts                  | TypeScript |          6 |          0 |          2 |          8 |
+| events\creep-killed-event.ts                       | TypeScript |          6 |          0 |          2 |          8 |
+| events\creep-shot-event.spec.ts                    | TypeScript |          6 |          0 |          2 |          8 |
+| events\creep-shot-event.ts                         | TypeScript |          5 |          0 |          2 |          7 |
+| events\custom-event-emitter.spec.ts                | TypeScript |          6 |          0 |          2 |          8 |
+| events\custom-event-emitter.ts                     | TypeScript |          7 |          0 |          3 |         10 |
+| events\draw-event.spec.ts                          | TypeScript |          6 |          0 |          2 |          8 |
+| events\draw-event.ts                               | TypeScript |          3 |          0 |          1 |          4 |
+| events\icreep-event.spec.ts                        | TypeScript |          6 |          0 |          2 |          8 |
+| events\icreep-event.ts                             | TypeScript |          4 |          0 |          2 |          6 |
+| models\barrack.ts                                  | TypeScript |          6 |          0 |          2 |          8 |
+| models\creeps\archer.spec.ts                       | TypeScript |          6 |          0 |          2 |          8 |
+| models\creeps\archer.ts                            | TypeScript |         14 |          0 |          3 |         17 |
+| models\creeps\basher.spec.ts                       | TypeScript |          6 |          0 |          2 |          8 |
+| models\creeps\basher.ts                            | TypeScript |         14 |          0 |          3 |         17 |
+| models\creeps\creep-base.spec.ts                   | TypeScript |          6 |          0 |          2 |          8 |
+| models\creeps\creep-base.ts                        | TypeScript |         39 |          0 |          6 |         45 |
+| models\data.json                                   | JSON       |          0 |          0 |          1 |          1 |
+| models\icoords.ts                                  | TypeScript |          4 |          0 |          1 |          5 |
+| models\icreep.ts                                   | TypeScript |         20 |          0 |          3 |         23 |
+| models\istats.ts                                   | TypeScript |          8 |          0 |          1 |          9 |
+| models\user.ts                                     | TypeScript |         15 |          0 |          1 |         16 |
+| pipes\pipes.module.ts                              | TypeScript |         13 |          0 |          2 |         15 |
+| pipes\player.pipe.spec.ts                          | TypeScript |          7 |          0 |          2 |          9 |
+| pipes\player.pipe.ts                               | TypeScript |         18 |          0 |          4 |         22 |
+| services\engine.service.spec.ts                    | TypeScript |          9 |          0 |          4 |         13 |
+| services\engine.service.ts                         | TypeScript |        158 |          8 |         22 |        188 |
+| services\eventmanager.service.spec.ts              | TypeScript |          9 |          0 |          4 |         13 |
+| services\eventmanager.service.ts                   | TypeScript |         18 |          0 |          3 |         21 |
+| services\render.service.spec.ts                    | TypeScript |          9 |          0 |          4 |         13 |
+| services\render.service.ts                         | TypeScript |         24 |          0 |          7 |         31 |
+| Total                                              |            |        923 |         15 |        208 |      1,146 |
++----------------------------------------------------+------------+------------+------------+------------+------------+
