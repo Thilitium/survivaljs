@@ -40,11 +40,15 @@ export class CreepComponent implements OnInit, OnDestroy {
 	private draw(e: DrawEvent) {
 		// Black border (or yellow if attacking)
 		e.ctx.fillStyle = this.shootingDisplay ? 'rgb(255, 255, 0)' : 'rgb(0, 0, 0)';
-		e.ctx.fillRect(this.data.x, this.data.y, this.data.width, this.data.height);
+		e.ctx.beginPath();
+		e.ctx.arc(this.data.x + this.data.width / 2, this.data.y + this.data.width / 2, (this.data.width) / 2, 0, 2 * Math.PI);
+		e.ctx.fill();
 
 		// Creep
 		e.ctx.fillStyle = this.data.player === 1 ? 'rgb(0, 0, 255)' : 'rgb(255, 0, 0)';
-		e.ctx.fillRect(this.data.x + 1, this.data.y + 1, this.data.width - 2, this.data.height - 2);
+		e.ctx.beginPath();
+		e.ctx.arc(this.data.x + this.data.width / 2, this.data.y + this.data.width / 2, (this.data.width - 1) / 2, 0, 2 * Math.PI);
+		e.ctx.fill();
 
 		// Health bar border
 		e.ctx.fillStyle = 'rgb(0, 0, 0)';

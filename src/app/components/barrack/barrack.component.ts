@@ -100,19 +100,20 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	}
 
 	private draw(e: DrawEvent) {
-		const x = this.player === 1 ? 0 : 500;
+		const x = this.player === 1 ? 200 : 750;
 		const color = this.player === 1 ? 'rgb(0, 0, 255)' : 'rgb(255, 0, 0)';
 
 		e.ctx.fillStyle = color;
-		e.ctx.fillRect(x, 0, 50, 50);
+		e.ctx.fillRect(x, 275, 50, 50);
 	}
 
 	private spawnMeleeCreepProcess() {
 		const creep = new Basher();
 		creep.player = this.player;
-		creep.x = this.player === 1 ? 50 : 480,
-		creep.y = 10;
+		creep.x = this.player === 1 ? 250 : 740,
+		creep.y = 295;
 		creep.statsModifier = this.meleeModifier;
+		creep.destination = this.player === 1 ? { x: 550, y: 295 } : { x: 250, y: 295};
 
 		this.engine.creeps.push(creep);
 

@@ -1,11 +1,12 @@
 import { CreepType } from '../constants/enums';
 import { IStats } from './istats';
+import { ICoords } from './icoords';
 
 
-export interface ICreep extends IStats {
+export interface ICreep extends IStats, ICoords {
+	aggroRange: number;
+	targetInRange: boolean;
 	speed: number;
-	x: number;
-	y: number;
 	player: number;
 	target: ICreep;
 	width: number;
@@ -16,4 +17,6 @@ export interface ICreep extends IStats {
 	type: CreepType;
 	statsModifier: IStats;
 	baseStats: IStats;
+	destination: ICoords;
+	currentDestination: ICoords;
 }

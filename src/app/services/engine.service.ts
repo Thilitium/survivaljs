@@ -2,15 +2,41 @@ import { Injectable } from '@angular/core';
 import { ICreep } from '../models/icreep';
 import { EventmanagerService } from './eventmanager.service';
 import { CreepType } from '../constants/enums';
+import { ICoords } from '../models/icoords';
+import NavMesh from '../../scripts/navmesh.js';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class EngineService {
 	public creeps: Array<ICreep>;
+	private navMesh: NavMesh;
+
+	// Tick rate in ms.
+	private tickRate = 16;
 
 	constructor(private events: EventmanagerService) {
 		this.creeps = [];
+
+		// Map start from x=200.
+		// Map is 600*600.
+		const xOffset = 200;
+		this.navMesh = new NavMesh([
+			[
+				{ x: xOffset + 50, y: 275 },
+				{ x: xOffset + 275, y: 275 },
+				{ x: xOffset + 275, y: 50 },
+				{ x: xOffset + 325, y: 50 },
+				{ x: xOffset + 325, y: 275 },
+				{ x: xOffset + 550, y: 275 },
+				{ x: xOffset + 550, y: 325 },
+				{ x: xOffset + 325, y: 325 },
+				{ x: xOffset + 325, y: 550 },
+				{ x: xOffset + 275, y: 550 },
+				{ x: xOffset + 275, y: 325 },
+				{ x: xOffset + 50, y: 325 }
+			]
+		]);
 	}
 
 	public start() {
@@ -69,6 +95,7 @@ export class EngineService {
 		this.creeps.forEach(creep => {
 			let minDist = 99999;
 			let target = null;
+			let targetInRange = false;
 
 			this.creeps.forEach(other => {
 				if (creep !== other && creep.player !== other.player) {
@@ -77,23 +104,27 @@ export class EngineService {
 						Math.pow((other.y + other.height / 2) - (creep.y + creep.height / 2), 2)
 					);
 
-					// We assume that the creep is a square and we add the half of the diagonal to account
+					// We assume that the creep is a circle and we add radius to account
 					// for the size of the creep when taking range into account.
-					// TODO: User the angle to have a better precision.
-					if (dist < minDist && dist < (creep.range + (creep.width * Math.SQRT2 / 2) + (other.width * Math.SQRT2 / 2))) {
+					if (dist < minDist && dist < (creep.aggroRange + (creep.width / 2) + (other.width / 2))) {
 						minDist = dist;
 						target = other;
+
+						if (dist < (creep.range + (creep.width / 2) + (other.width / 2))) {
+							targetInRange = true;
+						}
 					}
 				}
 			});
 
+			creep.targetInRange = targetInRange;
 			creep.target = target;
 		});
 	}
 
 	private attackProcess() {
 		this.creeps.forEach((creep) => {
-			if (creep.target !== null) {
+			if (creep.target !== null && creep.targetInRange) {
 				const msSinceLastShot = creep.lastShotTime ?
 					new Date().getTime() - creep.lastShotTime.getTime() : 999999;
 
@@ -101,10 +132,12 @@ export class EngineService {
 					creep.target.health -= creep.attack;
 					creep.shooting = true;
 					creep.lastShotTime = new Date();
-					this.events.onCreepShot.emit({creep});
+					this.events.onCreepShot.emit({ creep });
 
 					if (creep.target.health <= 0) {
-						this.events.onCreepKill.emit({creep: creep.target, killer: creep});
+						this.events.onCreepKill.emit({ creep: creep.target, killer: creep });
+						creep.target = null;
+						creep.targetInRange = false;
 					}
 				}
 			} else {
@@ -121,14 +154,31 @@ export class EngineService {
 			}
 		});
 		deadCreepsIndexes.forEach(i => {
-			this.events.onCreepDied.emit({creep : this.creeps[i] });
+			this.events.onCreepDied.emit({ creep: this.creeps[i] });
 			this.creeps.splice(i, 1);
 		});
 	}
 
 	private moveCreeps() {
 		this.creeps.forEach(creep => {
-			creep.x += creep.speed;
+			if (!creep.targetInRange && creep.currentDestination) {
+				const path: ICoords[] = this.navMesh.findPath(creep, creep.currentDestination);
+				if (path) {
+					const deltaX = Math.abs(path[1].x - path[0].x);
+					const deltaY = Math.abs(path[1].y - path[0].y);
+					console.log(path.length);
+					const newCoords: ICoords = {
+						x: deltaX !== 0 ? this.lerp(path[0].x, path[1].x, creep.speed / (path[1].x - path[0].x)) : creep.x,
+						y: deltaY !== 0 ? this.lerp(path[0].y, path[1].y, creep.speed / (path[1].y - path[0].y)) : creep.y
+					};
+					creep.x = newCoords.x;
+					creep.y = newCoords.y;
+				}
+			}
 		});
+	}
+
+	private lerp(start: number, end: number, amt: number) {
+		return (1 - amt) * start + amt * end;
 	}
 }

@@ -11,8 +11,17 @@ import { DrawEvent } from 'src/app/events/draw-event';
 export class BackgroundComponent implements OnInit {
 	@ViewChild('canvas', {static: true}) canvas: ElementRef;
 
+	private background: HTMLImageElement;
+	private backgroundLoaded = false;
+
 	constructor(private events: EventmanagerService, private render: RenderService) {
-		this.events.onDraw0.subscribe(this.draw);
+		this.background = new Image();
+		this.background.onload = () => {
+			this.backgroundLoaded = true;
+		};
+		this.background.src = '../../assets/map.png';
+
+		this.events.onDraw0.subscribe((e) => this.draw(e));
 	}
 
 	ngOnInit() {
@@ -22,5 +31,9 @@ export class BackgroundComponent implements OnInit {
 	private draw(e: DrawEvent) {
 		e.ctx.fillStyle = 'rgb(80, 80, 80)';
 		e.ctx.fillRect(0, 0, 800, 600);
+
+		if (this.backgroundLoaded) {
+			e.ctx.drawImage(this.background, 200, 0);
+		}
 	}
 }
