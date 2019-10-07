@@ -21,7 +21,7 @@ export class EngineService {
 		// Map start from x=200.
 		// Map is 600*600.
 		const xOffset = 200;
-		this.navMesh = new NavMesh([
+		/*this.navMesh = new NavMesh([
 			[
 				{ x: xOffset + 50, y: 275 },
 				{ x: xOffset + 275, y: 275 },
@@ -35,6 +35,43 @@ export class EngineService {
 				{ x: xOffset + 275, y: 550 },
 				{ x: xOffset + 275, y: 325 },
 				{ x: xOffset + 50, y: 325 }
+			]
+		]);*/
+		this.navMesh = new NavMesh([
+			[
+				// Left lane
+				{ x: xOffset + 50, y: 275 },
+				{ x: xOffset + 275, y: 275 },
+				{ x: xOffset + 275, y: 325 },
+				{ x: xOffset + 50, y: 325 }
+			],
+			[
+				// Top lane
+				{ x: xOffset + 275, y: 50 },
+				{ x: xOffset + 325, y: 50 },
+				{ x: xOffset + 325, y: 275 },
+				{ x: xOffset + 275, y: 275 }
+			],
+			[
+				// Right lane
+				{ x: xOffset + 550, y: 275 },
+				{ x: xOffset + 550, y: 325 },
+				{ x: xOffset + 325, y: 325 },
+				{ x: xOffset + 325, y: 275 }
+			],
+			[
+				// Bottom lane
+				{ x: xOffset + 325, y: 550 },
+				{ x: xOffset + 275, y: 550 },
+				{ x: xOffset + 275, y: 325 },
+				{ x: xOffset + 325, y: 325 }
+			],
+			[
+				// Mid
+				{ x: xOffset + 275, y: 275 },
+				{ x: xOffset + 325, y: 275 },
+				{ x: xOffset + 325, y: 325 },
+				{ x: xOffset + 275, y: 325 }
 			]
 		]);
 	}
@@ -60,7 +97,6 @@ export class EngineService {
 		for (let i = 0; i < creepsOrderedLeftToRight.length; ++i) {
 			const c1 = creepsOrderedLeftToRight[i];
 			let frontCreepBlocking: ICreep = null;
-			c1.speed = c1.maxSpeed;
 
 			if (c1.player === 1) {
 				// Check if a creep is blocking
@@ -86,7 +122,7 @@ export class EngineService {
 				// For a range creep, we stop dead if we have a target.
 				c1.speed = 0;
 			} else {
-				c1.speed = c1.player === 1 ? c1.maxSpeed : -c1.maxSpeed;
+				c1.speed = c1.maxSpeed;
 			}
 		}
 	}
@@ -161,23 +197,18 @@ export class EngineService {
 
 	private moveCreeps() {
 		this.creeps.forEach(creep => {
+			// TODO: Optimisation: only reevaluate path if target changed from last iteration
 			if (!creep.targetInRange && creep.currentDestination) {
 				const path: ICoords[] = this.navMesh.findPath(creep, creep.currentDestination);
 				if (path) {
 					const deltaX = path[1].x - path[0].x;
 					const deltaY = path[1].y - path[0].y;
-					const newCoords: ICoords = {
-						x: deltaX !== 0 ? this.lerp(path[0].x, path[1].x, creep.speed / deltaX) : creep.x,
-						y: deltaY !== 0 ? this.lerp(path[0].y, path[1].y, creep.speed / deltaY) : creep.y
-					};
-					creep.x = newCoords.x;
-					creep.y = newCoords.y;
+					const pctX = Math.abs(deltaX) / (Math.abs(deltaX) + Math.abs(deltaY));
+					const pctY = Math.abs(deltaY) / (Math.abs(deltaX) + Math.abs(deltaY));
+					creep.x += (deltaX < 0 ? -creep.speed : creep.speed) * pctX;
+					creep.y += (deltaY < 0 ? -creep.speed : creep.speed) * pctY;
 				}
 			}
 		});
-	}
-
-	private lerp(start: number, end: number, amt: number) {
-		return (1 - amt) * start + amt * end;
 	}
 }
