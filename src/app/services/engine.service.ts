@@ -21,22 +21,6 @@ export class EngineService {
 		// Map start from x=200.
 		// Map is 600*600.
 		const xOffset = 200;
-		/*this.navMesh = new NavMesh([
-			[
-				{ x: xOffset + 50, y: 275 },
-				{ x: xOffset + 275, y: 275 },
-				{ x: xOffset + 275, y: 50 },
-				{ x: xOffset + 325, y: 50 },
-				{ x: xOffset + 325, y: 275 },
-				{ x: xOffset + 550, y: 275 },
-				{ x: xOffset + 550, y: 325 },
-				{ x: xOffset + 325, y: 325 },
-				{ x: xOffset + 325, y: 550 },
-				{ x: xOffset + 275, y: 550 },
-				{ x: xOffset + 275, y: 325 },
-				{ x: xOffset + 50, y: 325 }
-			]
-		]);*/
 		this.navMesh = new NavMesh([
 			[
 				// Left lane
@@ -201,7 +185,9 @@ export class EngineService {
 				let path: ICoords[];
 				if (creep.currentDestination !== creep.lastDestination) {
 					path = this.navMesh.findPath(creep, creep.currentDestination);
-					creep.lastDestination = path[1];
+					if (path) {
+						creep.lastDestination = path[1];
+					}
 				} else {
 					path = [
 						creep,

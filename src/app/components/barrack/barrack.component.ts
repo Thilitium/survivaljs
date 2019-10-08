@@ -28,7 +28,7 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	public baseCreepSpeed = 1;
 	public baseCreepValue = 10;
 	public upgradeCost = 20;
-	public gold = 0;
+	public gold = 999999;
 
 	get creeps(): Array<ICreep> {
 		return this.playerPipe.transform(this.engine.creeps, this.player);
@@ -114,7 +114,7 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 		creep.y = this.player === 1 ? 276 : 314;
 		//creep.y = 295;
 		creep.statsModifier = this.meleeModifier;
-		creep.destination = this.player === 1 ? { x: 540, y: 295 } : { x: 250, y: 295 };
+		creep.destination = this.player === 1 ? { x: 740, y: 295 } : { x: 250, y: 295 };
 		creep.health = creep.maxHealth;
 
 		this.engine.creeps.push(creep);
