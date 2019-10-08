@@ -11,6 +11,7 @@ import NavMesh from '../../scripts/navmesh.js';
 export class EngineService {
 	public creeps: Array<ICreep>;
 	private navMesh: NavMesh;
+	private colMesh: ICoords[][];
 
 	// Tick rate in ms.
 	private tickRate = 16;
@@ -58,6 +59,38 @@ export class EngineService {
 				{ x: xOffset + 275, y: 325 }
 			]
 		]);
+
+		// Initialization of the collision mesh
+		this.colMesh = [
+			[
+				// Top left
+				{ x: xOffset, y: 0 },
+				{ x: xOffset + 275, y: 0 },
+				{ x: xOffset + 275, y: 275 },
+				{ x: xOffset, y: 275 }
+			],
+			[
+				// Top right
+				{ x: xOffset + 325, y: 0 },
+				{ x: xOffset + 600, y: 0 },
+				{ x: xOffset + 600, y: 275 },
+				{ x: xOffset + 325, y: 275 }
+			],
+			[
+				// Bottom right
+				{ x: xOffset + 325, y: 325 },
+				{ x: xOffset + 600, y: 325 },
+				{ x: xOffset + 600, y: 600 },
+				{ x: xOffset + 325, y: 600 }
+			],
+			[
+				// Bottom left
+				{ x: xOffset, y: 325 },
+				{ x: xOffset + 325, y: 325 },
+				{ x: xOffset + 325, y: 600 },
+				{ x: xOffset, y: 600 }
+			]
+		];
 	}
 
 	public start() {
