@@ -197,9 +197,18 @@ export class EngineService {
 
 	private moveCreeps() {
 		this.creeps.forEach(creep => {
-			// TODO: Optimisation: only reevaluate path if target changed from last iteration
 			if (!creep.targetInRange && creep.currentDestination) {
-				const path: ICoords[] = this.navMesh.findPath(creep, creep.currentDestination);
+				let path: ICoords[];
+				if (creep.currentDestination !== creep.lastDestination) {
+					path = this.navMesh.findPath(creep, creep.currentDestination);
+					creep.lastDestination = path[1];
+				} else {
+					path = [
+						creep,
+						creep.currentDestination
+					];
+				}
+
 				if (path) {
 					const deltaX = path[1].x - path[0].x;
 					const deltaY = path[1].y - path[0].y;

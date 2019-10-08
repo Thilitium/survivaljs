@@ -29,6 +29,7 @@ export class CreepBase implements ICreep {
 		value: 0
 	};
 
+	lastDestination: ICoords = null;
 	public get currentDestination(): ICoords {
 		return this.target ? this.target : this.destination;
 	}

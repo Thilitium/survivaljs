@@ -19,4 +19,5 @@ export interface ICreep extends IStats, ICoords {
 	baseStats: IStats;
 	destination: ICoords;
 	currentDestination: ICoords;
+	lastDestination: ICoords;
 }
