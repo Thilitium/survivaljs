@@ -231,10 +231,14 @@ export class EngineService {
 				if (path) {
 					const deltaX = path[1].x - path[0].x;
 					const deltaY = path[1].y - path[0].y;
+					/* This below works well, but I want to do it with trigonometry
 					const pctX = Math.abs(deltaX) / (Math.abs(deltaX) + Math.abs(deltaY));
 					const pctY = Math.abs(deltaY) / (Math.abs(deltaX) + Math.abs(deltaY));
 					creep.x += (deltaX < 0 ? -creep.speed : creep.speed) * pctX;
-					creep.y += (deltaY < 0 ? -creep.speed : creep.speed) * pctY;
+					creep.y += (deltaY < 0 ? -creep.speed : creep.speed) * pctY;*/
+					const angle = Math.atan2(deltaY, deltaX);
+					creep.x += creep.speed * Math.cos(angle);
+					creep.y += creep.speed * Math.sin(angle);
 				}
 			}
 		});
