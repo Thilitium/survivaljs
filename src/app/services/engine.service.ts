@@ -4,6 +4,7 @@ import { EventmanagerService } from './eventmanager.service';
 import { CreepType } from '../constants/enums';
 import { ICoords } from '../models/icoords';
 import NavMesh from '../../scripts/navmesh.js';
+import { Vector } from '../models/vector';
 
 @Injectable({
 	providedIn: 'root'
@@ -229,16 +230,20 @@ export class EngineService {
 				}
 
 				if (path) {
-					const deltaX = path[1].x - path[0].x;
+					/*
+					 This below works well, but I want to do it with vectors
+					 const deltaX = path[1].x - path[0].x;
 					const deltaY = path[1].y - path[0].y;
-					/* This below works well, but I want to do it with trigonometry
 					const pctX = Math.abs(deltaX) / (Math.abs(deltaX) + Math.abs(deltaY));
 					const pctY = Math.abs(deltaY) / (Math.abs(deltaX) + Math.abs(deltaY));
 					creep.x += (deltaX < 0 ? -creep.speed : creep.speed) * pctX;
-					creep.y += (deltaY < 0 ? -creep.speed : creep.speed) * pctY;*/
+					creep.y += (deltaY < 0 ? -creep.speed : creep.speed) * pctY;
 					const angle = Math.atan2(deltaY, deltaX);
 					creep.x += creep.speed * Math.cos(angle);
-					creep.y += creep.speed * Math.sin(angle);
+					creep.y += creep.speed * Math.sin(angle);*/
+					const velocity = Vector.between(path[1], path[0]).normalize().multiply(creep.speed);
+					creep.x += velocity.x;
+					creep.y += velocity.y;
 				}
 			}
 		});
