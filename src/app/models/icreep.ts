@@ -1,6 +1,7 @@
 import { CreepType } from '../constants/enums';
 import { IStats } from './istats';
 import { ICoords } from './icoords';
+import { Vector } from './vector';
 
 
 export interface ICreep extends IStats, ICoords {
@@ -20,4 +21,5 @@ export interface ICreep extends IStats, ICoords {
 	destination: ICoords;
 	currentDestination: ICoords;
 	lastDestination: ICoords;
+	velocity: Vector;
 }

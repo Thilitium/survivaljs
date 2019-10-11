@@ -5,4 +5,5 @@ export interface IStats {
 	attack: number;
 	attackSpeed: number;
 	value: number;
+	acceleration: 50;
 }

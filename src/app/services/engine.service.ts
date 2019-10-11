@@ -147,7 +147,7 @@ export class EngineService {
 
 	private checkTargets() {
 		this.creeps.forEach(creep => {
-			let minDist = 99999;
+			let minDist = Number.MAX_VALUE;
 			let target = null;
 			let targetInRange = false;
 
@@ -180,7 +180,7 @@ export class EngineService {
 		this.creeps.forEach((creep) => {
 			if (creep.target !== null && creep.targetInRange) {
 				const msSinceLastShot = creep.lastShotTime ?
-					new Date().getTime() - creep.lastShotTime.getTime() : 999999;
+					new Date().getTime() - creep.lastShotTime.getTime() : Number.MAX_VALUE;
 
 				if (msSinceLastShot > creep.attackSpeed * 1000) {
 					creep.target.health -= creep.attack;
@@ -231,8 +231,8 @@ export class EngineService {
 
 				if (path) {
 					/*
-					 This below works well, but I want to do it with vectors
-					 const deltaX = path[1].x - path[0].x;
+					//This below works well, but I want to do it with vectors
+					const deltaX = path[1].x - path[0].x;
 					const deltaY = path[1].y - path[0].y;
 					const pctX = Math.abs(deltaX) / (Math.abs(deltaX) + Math.abs(deltaY));
 					const pctY = Math.abs(deltaY) / (Math.abs(deltaX) + Math.abs(deltaY));
@@ -240,12 +240,127 @@ export class EngineService {
 					creep.y += (deltaY < 0 ? -creep.speed : creep.speed) * pctY;
 					const angle = Math.atan2(deltaY, deltaX);
 					creep.x += creep.speed * Math.cos(angle);
-					creep.y += creep.speed * Math.sin(angle);*/
-					const velocity = Vector.between(path[1], path[0]).normalize().multiply(creep.speed);
-					creep.x += velocity.x;
-					creep.y += velocity.y;
+					creep.y += creep.speed * Math.sin(angle);
+					*/
+
+					creep.velocity = Vector.between(path[1], path[0]).normalize().multiply(creep.speed);
+					creep.x += creep.velocity.x;
+					creep.y += creep.velocity.y;
 				}
 			}
 		});
+	}
+
+	private steerTowards(creep: ICreep, desiredDirection: Vector) {
+		// Multiply our direction by speed for our desired speed
+		const desiredVelocity = desiredDirection.multiply(creep.maxSpeed);
+
+		// The velocity change we want
+		const velocityChange = desiredVelocity.subtract(creep.velocity);
+		// Convert to a force
+		return velocityChange.multiply(creep.acceleration / creep.speed);
+	}
+
+	private steeringBehaviorSeek(creep: ICreep, destination: Vector) {
+		if (destination.x === creep.x && destination.y === creep.y) {
+			return new Vector();
+		}
+
+		// Desired change of location
+		const desired = destination.subtract(creep.velocity);
+
+		// Desired velocity (move there at maximum speed)
+		const desiredVel = desired.multiply(creep.maxSpeed / desired.length());
+
+		// The velocity change we want
+		const velocityChange = desiredVel.subtract(creep.velocity);
+
+		// Convert to a force
+		return velocityChange.multiply(creep.acceleration / creep.maxSpeed);
+	}
+
+	private steeringBehaviourAvoid(creep: ICreep) {
+		// If we aren't moving much, we don't need to try avoid (we assume circle)
+		if (Math.sqrt(creep.velocity.length()) <= creep.width) {
+			return new Vector();
+		}
+
+		// Do some ray casts to work out what is in front of us
+		let minFraction = 2;
+		let closestFixture = null;
+
+		const callback = function (fixture, point, normal, fraction) {
+			//Ignore ourself
+			if (fixture == agent.fixture) {
+				return fraction;
+			}
+			//Only care about dynamic (moving) things
+			if (fraction < minFraction && fixture.GetBody().GetType() == B2Body.b2_dynamicBody) {
+				minFraction = fraction;
+				closestFixture = fixture;
+			}
+			return 0;
+		};
+
+		//Do a straight forward cast from our center
+		world.RayCast(callback, agent.position(), agent.position().Copy().Add(agent.velocity()));
+
+		//Calculate an offset so we can do casts from our edge
+		var velCopy = agent.velocity().Copy();
+		velCopy.Normalize();
+		var temp = velCopy.x;
+		velCopy.x = velCopy.y;
+		velCopy.y = -temp;
+		velCopy.Multiply(agent.radius);
+
+		//Do a raycast forwards from our right and left edge
+		world.RayCast(callback, agent.position().Copy().Add(velCopy), agent.position().Copy().Add(agent.velocity()).Add(velCopy));
+		world.RayCast(callback, agent.position().Copy().Subtract(velCopy), agent.position().Copy().Add(agent.velocity()).Subtract(velCopy));
+
+		//If we aren't going to collide, we don't need to avoid
+		if (closestFixture == null) {
+			return B2Vec2.Zero;
+		}
+
+		var resultVector = null;
+		var collisionBody = closestFixture.GetBody();
+		var ourVelocityLengthSquared = agent.velocity().LengthSquared();
+
+		//Add our velocity and the other Agents velocity
+		//If this makes the total length longer than the individual length of one of them, then we are going in the same direction
+		var combinedVelocity = agent.velocity().Copy().Add(collisionBody.GetLinearVelocity());
+		var combinedVelocityLengthSquared = combinedVelocity.LengthSquared();
+
+		//We are going in the same direction and they aren't avoiding
+		if (combinedVelocityLengthSquared > ourVelocityLengthSquared && closestFixture.GetUserData().avoidanceDirection === null) {
+			return B2Vec2.Zero;
+		}
+
+		//We need to Steer to go around it, we assume the other shape is also a circle
+
+		var vectorInOtherDirection = closestFixture.GetBody().GetPosition().Copy().Subtract(agent.position());
+
+		//Are we more left or right of them
+		var isLeft;
+		if (closestFixture.GetUserData().avoidanceDirection !== null) {
+			//If they are avoiding, avoid with the same direction as them, so we go the opposite way
+			isLeft = closestFixture.GetUserData().avoidanceDirection;
+		} else {
+			//http://stackoverflow.com/questions/13221873/determining-if-one-2d-vector-is-to-the-right-or-left-of-another
+			var dot = agent.velocity().x * -vectorInOtherDirection.y + agent.velocity().y * vectorInOtherDirection.x;
+			isLeft = dot > 0;
+		}
+		agent.avoidanceDirection = isLeft;
+
+		//Calculate a right angle of the vector between us
+		//http://www.gamedev.net/topic/551175-rotate-vector-90-degrees-to-the-right/#entry4546571
+		resultVector = isLeft ? new B2Vec2(-vectorInOtherDirection.y, vectorInOtherDirection.x) : new B2Vec2(vectorInOtherDirection.y, -vectorInOtherDirection.x);
+		resultVector.Normalize();
+
+		//Move it out based on our radius + theirs
+		resultVector.Multiply(agent.radius + closestFixture.GetShape().GetRadius());
+
+		//Steer torwards it, increasing force based on how close we are
+		return steerTowards(agent, resultVector).Divide(minFraction);
 	}
 }

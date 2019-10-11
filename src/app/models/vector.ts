@@ -7,7 +7,7 @@ export class Vector {
 	public x: number;
 	public y: number;
 
-	constructor(vX: number, vY: number) {
+	constructor(vX: number = 0, vY: number = 0) {
 		this.x = vX;
 		this.y = vY;
 	}
@@ -55,6 +55,30 @@ export class Vector {
 		return new Vector(
 			this.x / length,
 			this.y / length
+		);
+	}
+
+	/**
+	 * This method computes the substraction of another vector to this one.
+	 * @param vector The vector we want to substract.
+	 * @returns The computed vector.
+	 */
+	public subtract(vector: Vector): Vector {
+		return new Vector(
+			this.x - vector.x,
+			this.y - vector.y
+		);
+	}
+
+	/**
+	 * This method computes the addition of another vector to this one.
+	 * @param vector The vector we want to add.
+	 * @returns The resulting vector.
+	 */
+	public add(vector: Vector): Vector {
+		return new Vector(
+			this.x + vector.x,
+			this.y + vector.y
 		);
 	}
 }

@@ -11,6 +11,7 @@ export class Archer extends CreepBase {
 		range: 40,
 		attack: 2,
 		attackSpeed: 1,
-		value: 15
+		value: 15,
+		acceleration: 50
 	};
 }

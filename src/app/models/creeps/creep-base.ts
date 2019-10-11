@@ -2,6 +2,7 @@ import { IStats } from '../istats';
 import { CreepType } from 'src/app/constants/enums';
 import { ICreep } from '../icreep';
 import { ICoords } from '../icoords';
+import { Vector } from '../vector';
 
 export class CreepBase implements ICreep {
 	baseStats: IStats = null;
@@ -26,9 +27,11 @@ export class CreepBase implements ICreep {
 		range: 0,
 		attack: 0,
 		attackSpeed: 0,
-		value: 0
+		value: 0,
+		acceleration: 50
 	};
 
+	velocity: Vector;
 	lastDestination: ICoords = null;
 	public get currentDestination(): ICoords {
 		return this.target ? this.target : this.destination;
