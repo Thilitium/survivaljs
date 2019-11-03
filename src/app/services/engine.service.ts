@@ -5,6 +5,7 @@ import { CreepType } from '../constants/enums';
 import { ICoords } from '../models/icoords';
 import NavMesh from '../../scripts/navmesh.js';
 import { Vector } from '../models/vector';
+import { of } from 'rxjs';
 
 @Injectable({
 	providedIn: 'root'
@@ -286,7 +287,7 @@ export class EngineService {
 		}
 
 		// Do some ray casts to work out what is in front of us
-		let minFraction = 2;
+		/*let minFraction = 2;
 		let closestFixture = null;
 
 		const callback = function (fixture, point, normal, fraction) {
@@ -315,16 +316,41 @@ export class EngineService {
 
 		//Do a raycast forwards from our right and left edge
 		world.RayCast(callback, agent.position().Copy().Add(velCopy), agent.position().Copy().Add(agent.velocity()).Add(velCopy));
-		world.RayCast(callback, agent.position().Copy().Subtract(velCopy), agent.position().Copy().Add(agent.velocity()).Subtract(velCopy));
+		world.RayCast(callback, agent.position().Copy().Subtract(velCopy), agent.position().Copy().Add(agent.velocity()).Subtract(velCopy));*/
 
-		//If we aren't going to collide, we don't need to avoid
+		// Check if we have a collision at the next position.
+		// TODO: We still have a problem if speed is more than 1 per tick. We should use Raycast. But it's hard.
+		const nextPos: ICoords = {
+			x: creep.x + creep.velocity.x,
+			y: creep.y + creep.velocity.y
+		};
+		let minDist = Infinity;
+		let closestFixture = null;
+		this.creeps.forEach(other => {
+			// TODO: This is the same code than CheckTargets().
+			if (other !== creep && other !== creep.target) {
+				const dist = Math.sqrt(
+					Math.pow((other.x + other.width / 2) - (nextPos.x + creep.width / 2), 2) +
+					Math.pow((other.y + other.height / 2) - (nextPos.y + creep.height / 2), 2)
+				);
+
+				// We assume that the creep is a circle and we add radius to account
+				// for the size of the creep when taking range into account.
+				if (dist < minDist && dist < (creep.aggroRange + (creep.width / 2) + (other.width / 2))) {
+					minDist = dist;
+					closestFixture = other;
+				}
+			}
+		});
+
+		// If we aren't going to collide, we don't need to avoid
 		if (closestFixture == null) {
-			return B2Vec2.Zero;
+			return new Vector();
 		}
 
-		var resultVector = null;
+		let resultVector = null;
 		var collisionBody = closestFixture.GetBody();
-		var ourVelocityLengthSquared = agent.velocity().LengthSquared();
+		const ourVelocityLengthSquared = Math.sqrt(creep.velocity.length());
 
 		//Add our velocity and the other Agents velocity
 		//If this makes the total length longer than the individual length of one of them, then we are going in the same direction
@@ -363,4 +389,5 @@ export class EngineService {
 		//Steer torwards it, increasing force based on how close we are
 		return steerTowards(agent, resultVector).Divide(minFraction);
 	}
+
 }

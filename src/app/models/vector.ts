@@ -81,4 +81,16 @@ export class Vector {
 			this.y + vector.y
 		);
 	}
+
+	/**
+	 * This method computes the rotation of a vector.
+	 * @param angle The angle in radians.
+	 * @returns The rotated vector.
+	 */
+	public rotate(angle: number): Vector {
+		return new Vector(
+			this.x * Math.cos(angle) - this.y * Math.sin(angle),
+			this.x * Math.sin(angle) + this.y * Math.cos(angle)
+		);
+	}
 }
