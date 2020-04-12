@@ -2,38 +2,33 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { RenderService } from 'src/app/services/render.service';
 import { EventmanagerService } from 'src/app/services/eventmanager.service';
 import { DrawEvent } from 'src/app/events/draw-event';
+import { GameObject } from 'src/app/models/gameobject';
+import { RenderingLayer } from 'src/app/constants/enums';
 
 @Component({
 	selector: 'app-background',
 	templateUrl: './background.component.html',
 	styleUrls: ['./background.component.css']
 })
-export class BackgroundComponent implements OnInit {
+export class BackgroundComponent extends GameObject implements OnInit {
 	@ViewChild('canvas', {static: true}) canvas: ElementRef;
 
-	private background: HTMLImageElement;
-	private backgroundLoaded = false;
 
 	constructor(private events: EventmanagerService, private render: RenderService) {
-		this.background = new Image();
-		this.background.onload = () => {
-			this.backgroundLoaded = true;
+		super({x: 200, y: 0}, null, RenderingLayer.BACKGROUND, events);
+		this.sprite = new Image();
+		this.sprite.onload = () => {
+			this.spriteLoaded = true;
 		};
-		this.background.src = '../../assets/map.png';
-
-		this.events.onDraw0.subscribe((e) => this.draw(e));
+		this.sprite.src = '../../assets/map.png';
 	}
 
 	ngOnInit() {
 		this.render.init(this.canvas.nativeElement.getContext('2d'));
 	}
 
-	private draw(e: DrawEvent) {
-		e.ctx.fillStyle = 'rgb(80, 80, 80)';
-		e.ctx.fillRect(0, 0, 800, 600);
-
-		if (this.backgroundLoaded) {
-			e.ctx.drawImage(this.background, 200, 0);
-		}
+	public draw(ctx: CanvasRenderingContext2D): void {
+		ctx.fillStyle = 'rgb(80, 80, 80)';
+		ctx.fillRect(0, 0, 800, 600);
 	}
 }

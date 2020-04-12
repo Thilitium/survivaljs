@@ -16,64 +16,6 @@ export class EngineService {
 	private tickRate = 16;
 
 	constructor(private events: EventmanagerService) {
-		this.creeps = [];
-
-		// Map start from x=200.
-		// Map is 600*600.
-		const xOffset = 200;
-		/*this.navMesh = new NavMesh([
-			[
-				{ x: xOffset + 50, y: 275 },
-				{ x: xOffset + 275, y: 275 },
-				{ x: xOffset + 275, y: 50 },
-				{ x: xOffset + 325, y: 50 },
-				{ x: xOffset + 325, y: 275 },
-				{ x: xOffset + 550, y: 275 },
-				{ x: xOffset + 550, y: 325 },
-				{ x: xOffset + 325, y: 325 },
-				{ x: xOffset + 325, y: 550 },
-				{ x: xOffset + 275, y: 550 },
-				{ x: xOffset + 275, y: 325 },
-				{ x: xOffset + 50, y: 325 }
-			]
-		]);*/
-		this.navMesh = new NavMesh([
-			[
-				// Left lane
-				{ x: xOffset + 50, y: 275 },
-				{ x: xOffset + 275, y: 275 },
-				{ x: xOffset + 275, y: 325 },
-				{ x: xOffset + 50, y: 325 }
-			],
-			[
-				// Top lane
-				{ x: xOffset + 275, y: 50 },
-				{ x: xOffset + 325, y: 50 },
-				{ x: xOffset + 325, y: 275 },
-				{ x: xOffset + 275, y: 275 }
-			],
-			[
-				// Right lane
-				{ x: xOffset + 550, y: 275 },
-				{ x: xOffset + 550, y: 325 },
-				{ x: xOffset + 325, y: 325 },
-				{ x: xOffset + 325, y: 275 }
-			],
-			[
-				// Bottom lane
-				{ x: xOffset + 325, y: 550 },
-				{ x: xOffset + 275, y: 550 },
-				{ x: xOffset + 275, y: 325 },
-				{ x: xOffset + 325, y: 325 }
-			],
-			[
-				// Mid
-				{ x: xOffset + 275, y: 275 },
-				{ x: xOffset + 325, y: 275 },
-				{ x: xOffset + 325, y: 325 },
-				{ x: xOffset + 275, y: 325 }
-			]
-		]);
 	}
 
 	public start() {
@@ -88,7 +30,7 @@ export class EngineService {
 			this.checkDeadCreeps();
 			this.moveCreeps();
 			this.gameLoop();
-		}, 16);
+		}, this.tickRate);
 	}
 
 	private checkCollisions() {
