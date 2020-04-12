@@ -8,14 +8,15 @@ import { Subscription } from 'rxjs';
 import { Basher } from 'src/app/models/creeps/basher';
 import { IStats } from 'src/app/models/istats';
 import { Archer } from 'src/app/models/creeps/archer';
-import { DrawEvent } from 'src/app/events/draw-event';
+import { GameObject } from 'src/app/models/gameobject';
+import { RenderingLayer } from 'src/app/constants/enums';
 
 @Component({
 	selector: 'app-barrack',
 	templateUrl: './barrack.component.html',
 	styleUrls: ['./barrack.component.css']
 })
-export class BarrackComponent implements OnInit, Barrack, OnDestroy {
+export class BarrackComponent extends GameObject implements OnInit, Barrack, OnDestroy {
 	@Input() player: number;
 
 	private subscriptions: Array<Subscription> = [];
@@ -30,17 +31,15 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	public upgradeCost = 20;
 	public gold = 999999;
 
-	get creeps(): Array<ICreep> {
-		return this.playerPipe.transform(this.engine.creeps, this.player);
-	}
-
 	constructor(private engine: EngineService, private events: EventmanagerService, private playerPipe: PlayerPipe) {
-		this.subscriptions.push(events.onCreepKill.subscribe(e => {
+		super(events, null, RenderingLayer.FOREGROUND, {x: 0, y: 275});
+		this.y = this.player === 1 ? 200 : 750;
+
+		this.subscriptions.push(this.events.onCreepKill.subscribe(e => {
 			if (e.killer.player === this.player) {
 				this.getGoldForCreep(e.creep);
 			}
 		}));
-		this.subscriptions.push(this.events.onDraw1.subscribe(e => this.draw(e)));
 
 		this.meleeModifier = {
 			maxSpeed: 0,
@@ -99,20 +98,19 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 		this.gold += creepKilled.value;
 	}
 
-	private draw(e: DrawEvent) {
+	public draw(ctx: CanvasRenderingContext2D): void {
 		const x = this.player === 1 ? 200 : 750;
 		const color = this.player === 1 ? 'rgb(0, 0, 255)' : 'rgb(255, 0, 0)';
 
-		e.ctx.fillStyle = color;
-		e.ctx.fillRect(x, 275, 50, 50);
+		ctx.fillStyle = color;
+		ctx.fillRect(this.x, this.y, 50, 50);
 	}
 
 	private spawnMeleeCreepProcess() {
-		const creep = new Basher();
+		const creep = new Basher(this.events);
 		creep.player = this.player;
 		creep.x = this.player === 1 ? 250 : 740,
 		creep.y = this.player === 1 ? 276 : 314;
-		//creep.y = 295;
 		creep.statsModifier = this.meleeModifier;
 		creep.destination = this.player === 1 ? { x: 740, y: 295 } : { x: 250, y: 295 };
 		creep.health = creep.maxHealth;
@@ -125,7 +123,7 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	}
 
 	private spawnRangedCreepProcess() {
-		const creep = new Archer();
+		const creep = new Archer(this.events);
 		creep.player = this.player;
 		creep.x = this.player === 1 ? 50 : 480,
 		creep.y = 10;

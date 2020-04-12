@@ -1,9 +1,13 @@
 import { IStats } from '../istats';
-import { CreepType } from 'src/app/constants/enums';
+import { CreepType, RenderingLayer } from 'src/app/constants/enums';
 import { ICreep } from '../icreep';
 import { ICoords } from '../icoords';
+import { Subscription } from 'rxjs';
+import { GameObject } from '../gameobject';
+import { OnInit, OnDestroy } from '@angular/core';
+import { EventmanagerService } from 'src/app/services/eventmanager.service';
 
-export class CreepBase implements ICreep {
+export class CreepBase extends GameObject implements OnDestroy, ICreep {
 	baseStats: IStats = null;
 	type: CreepType = CreepType.Unknown;
 
@@ -40,6 +44,58 @@ export class CreepBase implements ICreep {
 	public get attackSpeed(): number { return this.baseStats.attackSpeed + this.statsModifier.attackSpeed; }
 	public get value(): number { return this.baseStats.value + this.statsModifier.value; }
 
+	private subscriptions: Array<Subscription> = [];
+	private shootingDisplay = false;
+	private get pctHealth(): number {
+		return this.health / this.maxHealth;
+	}
 
-	constructor() {}
+	constructor(private events: EventmanagerService) {
+		super(events, null, RenderingLayer.CREEPS, {x: 0, y: 0});
+		this.subscriptions.push(this.events.onCreepShot.subscribe(e => {
+			if (e.creep === this) {
+				this.shootingAnimation();
+			}
+		}));
+	}
+
+	shootingAnimation() {
+		this.shootingDisplay = true;
+		setTimeout(() => {
+			this.shootingDisplay = false;
+		}, 50);
+	}
+
+	public draw(ctx: CanvasRenderingContext2D): void {
+		// Black border (or yellow if attacking)
+		ctx.fillStyle = this.shootingDisplay ? 'rgb(255, 255, 0)' : 'rgb(0, 0, 0)';
+		ctx.beginPath();
+		ctx.arc(this.x + this.width / 2, this.y + this.width / 2, (this.width) / 2, 0, 2 * Math.PI);
+		ctx.fill();
+
+		// Creep
+		ctx.fillStyle = this.player === 1 ? 'rgb(0, 0, 255)' : 'rgb(255, 0, 0)';
+		ctx.beginPath();
+		ctx.arc(this.x + this.width / 2, this.y + this.width / 2, (this.width - 1) / 2, 0, 2 * Math.PI);
+		ctx.fill();
+
+		// Health bar border
+		ctx.fillStyle = 'rgb(0, 0, 0)';
+		ctx.fillRect(this.x, this.y - 7, this.width, 5);
+
+		// Health bar background
+		ctx.fillStyle = 'rgb(255, 0, 0)';
+		ctx.fillRect(this.x + 1, this.y - 6, this.width - 2, 3);
+
+		// Health bar
+		ctx.fillStyle = 'rgb(0, 255, 0)';
+		ctx.fillRect(this.x + 1, this.y - 6, this.pctHealth * (this.width - 2), 3);
+	}
+
+	// TODO: Implémenter un destructeur à la mano
+	ngOnDestroy(): void {
+		this.subscriptions.forEach(s => {
+			s.unsubscribe();
+		});
+	}
 }

@@ -4,12 +4,13 @@ import { EventmanagerService } from './eventmanager.service';
 import { CreepType } from '../constants/enums';
 import { ICoords } from '../models/icoords';
 import NavMesh from '../../scripts/navmesh.js';
+import { CreepBase } from '../models/creeps/creep-base';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class EngineService {
-	public creeps: Array<ICreep>;
+	public creeps: Array<CreepBase>;
 	private navMesh: NavMesh;
 
 	// Tick rate in ms.
@@ -72,7 +73,7 @@ export class EngineService {
 			this.checkDeadCreeps();
 			this.moveCreeps();
 			this.gameLoop();
-		}, 16);
+		}, this.tickRate);
 	}
 
 	private checkCollisions() {
@@ -175,6 +176,7 @@ export class EngineService {
 		});
 		deadCreepsIndexes.forEach(i => {
 			this.events.onCreepDied.emit({ creep: this.creeps[i] });
+			this.creeps[i].destroy();
 			this.creeps.splice(i, 1);
 		});
 	}

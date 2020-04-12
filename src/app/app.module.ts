@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { GameComponent } from './components/game/game.component';
 import { BarrackComponent } from './components/barrack/barrack.component';
-import { CreepComponent } from './components/creep/creep.component';
 import { PlayerPipe } from './pipes/player.pipe';
 import { BackgroundComponent } from './components/background/background.component';
 
@@ -14,7 +13,6 @@ import { BackgroundComponent } from './components/background/background.componen
 		AppComponent,
 		GameComponent,
 		BarrackComponent,
-		CreepComponent,
 		BackgroundComponent
 	],
 	imports: [
