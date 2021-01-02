@@ -40,7 +40,7 @@ export class RenderService {
 		const layers = [];
 
 		// List of layers to draw;
-		//TODO: Juste make an enumerator
+		// TODO: Juste make an enumerator
 		layers[RenderingLayer.BACKGROUND] = [];
 		layers[RenderingLayer.FLOOR] = [];
 		layers[RenderingLayer.CREEPS] = [];

@@ -10,6 +10,7 @@ import { IStats } from 'src/app/models/istats';
 import { Archer } from 'src/app/models/creeps/archer';
 import { GameObject } from 'src/app/models/gameobject';
 import { RenderingLayer } from 'src/app/constants/enums';
+import { ICoords } from 'src/app/models/icoords';
 
 @Component({
 	selector: 'app-barrack',
@@ -107,10 +108,14 @@ export class BarrackComponent extends GameObject implements OnInit, Barrack, OnD
 	}
 
 	private spawnMeleeCreepProcess() {
-		const creep = new Basher(this.events);
+		const coords: ICoords = {
+			x: this.player === 1 ? 250 : 740,
+			y: this.player === 1 ? 276 : 314
+		};
+		const creep = new Basher(this.events, coords, this.engine.world, this.player);
 		creep.player = this.player;
-		creep.x = this.player === 1 ? 250 : 740,
-		creep.y = this.player === 1 ? 276 : 314;
+		/*creep.x = this.player === 1 ? 250 : 740,
+		creep.y = this.player === 1 ? 276 : 314;*/
 		creep.statsModifier = this.meleeModifier;
 		creep.destination = this.player === 1 ? { x: 740, y: 295 } : { x: 250, y: 295 };
 		creep.health = creep.maxHealth;

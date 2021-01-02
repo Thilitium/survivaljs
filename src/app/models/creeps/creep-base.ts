@@ -4,8 +4,17 @@ import { ICreep } from '../icreep';
 import { ICoords } from '../icoords';
 import { Subscription } from 'rxjs';
 import { GameObject } from '../gameobject';
-import { OnInit, OnDestroy } from '@angular/core';
+import { OnDestroy } from '@angular/core';
 import { EventmanagerService } from 'src/app/services/eventmanager.service';
+import * as Box2D from '../../../scripts/Box2D.js';
+import b2Common = Box2D.Common;
+import b2Math = Box2D.Common.Math;
+import b2Collision = Box2D.Collision;
+import b2Shapes = Box2D.Collision.Shapes;
+import b2Dynamics = Box2D.Dynamics;
+import b2Contacts = Box2D.Dynamics.Contacts;
+import b2Controllers = Box2D.Dynamics.Controllers;
+import b2Joints = Box2D.Dynamics.Joints;
 
 export class CreepBase extends GameObject implements OnDestroy, ICreep {
 	baseStats: IStats = null;
@@ -14,7 +23,7 @@ export class CreepBase extends GameObject implements OnDestroy, ICreep {
 	speed = 0;
 	x = 0;
 	y = 0;
-	destination = null;
+	destination: ICoords = null;
 	player = -1;
 	target: ICreep = null;
 	width = 10;
@@ -50,8 +59,9 @@ export class CreepBase extends GameObject implements OnDestroy, ICreep {
 		return this.health / this.maxHealth;
 	}
 
-	constructor(private events: EventmanagerService) {
-		super(events, null, RenderingLayer.CREEPS, {x: 0, y: 0});
+	constructor(
+		private events: EventmanagerService, coords: ICoords = {x: 0, y: 0}, world: Box2D.Dynamics.b2World = null, group: number = null) {
+		super(events, null, RenderingLayer.CREEPS, coords, world, group);
 		this.subscriptions.push(this.events.onCreepShot.subscribe(e => {
 			if (e.creep === this) {
 				this.shootingAnimation();
