@@ -21,42 +21,67 @@ export class EngineService {
 		// Map start from x=200.
 		// Map is 600*600.
 		const xOffset = 200;
+		const yOffset = 0;
+		const offsetCoords = (coords, start) => {
+			coords.forEach((c) => {
+				c.x += xOffset + start.x;
+				c.y += yOffset + start.y;
+			});
+
+			return coords;
+		};
+		const horizontalLane = (start) => {
+			let coords = [
+				{ x: 0, y: 0 },
+				{ x: 225, y: 0 },
+				{ x: 225, y: 50 },
+				{ x: 0, y: 50 }
+			];
+
+			return offsetCoords(coords, start);
+		};
+		const verticalLane = (start) => {
+			let coords = [
+				{ x: 0, y: 0 },
+				{ x: 50, y: 0 },
+				{ x: 50, y: 225 },
+				{ x: 0, y: 225 }
+			];
+
+			return offsetCoords(coords, start);
+		};
+		const square = (start) => {
+			let coords = [
+				{ x: 0, y: 0 },
+				{ x: 50, y: 0 },
+				{ x: 50, y: 50 },
+				{ x: 0, y: 50 }
+			];
+
+			return offsetCoords(coords, start);
+		};
 		this.navMesh = new NavMesh([
-			[
-				// Left lane
-				{ x: xOffset + 50, y: 275 },
-				{ x: xOffset + 275, y: 275 },
-				{ x: xOffset + 275, y: 325 },
-				{ x: xOffset + 50, y: 325 }
-			],
-			[
-				// Top lane
-				{ x: xOffset + 275, y: 50 },
-				{ x: xOffset + 325, y: 50 },
-				{ x: xOffset + 325, y: 275 },
-				{ x: xOffset + 275, y: 275 }
-			],
-			[
-				// Right lane
-				{ x: xOffset + 550, y: 275 },
-				{ x: xOffset + 550, y: 325 },
-				{ x: xOffset + 325, y: 325 },
-				{ x: xOffset + 325, y: 275 }
-			],
-			[
-				// Bottom lane
-				{ x: xOffset + 325, y: 550 },
-				{ x: xOffset + 275, y: 550 },
-				{ x: xOffset + 275, y: 325 },
-				{ x: xOffset + 325, y: 325 }
-			],
-			[
-				// Mid
-				{ x: xOffset + 275, y: 275 },
-				{ x: xOffset + 325, y: 275 },
-				{ x: xOffset + 325, y: 325 },
-				{ x: xOffset + 275, y: 325 }
-			]
+			horizontalLane({ x: 50, y: 275 }), // Mid Left lane
+			verticalLane({ x: 275, y: 50 }), // Mid Top lane
+			horizontalLane({ x: 325, y: 275 }), // Mid Right lane
+			verticalLane({ x: 275, y: 325 }), // Mid Bottom lane
+			square({ x: 275, y: 275 }), // Mid
+			verticalLane({ x: 0, y: 325 }), // Left : Bottom Lane
+			square({ x: 0, y: 275 }), // Left
+			verticalLane({ x: 0, y: 50 }), // Left: Top Lane
+			square({ x: 0, y: 0 }), // Top Left
+			horizontalLane({ x: 50, y: 0}), // Top: Left Lane
+			square({x : 275, y: 0}), // Top
+			horizontalLane({ x: 325, y: 0}), // Top: Right Lane
+			square({ x: 550, y: 0 }), // Top Right
+			verticalLane({ x: 550, y: 50 }), // Right: Top Lane
+			square({ x: 550, y: 275 }), // Right
+			verticalLane({ x: 550, y: 325 }), // Right : Bottom Lane
+			square({ x: 550, y: 550 }), // Bottom Right
+			horizontalLane({ x: 325, y: 550}), // Bottom: Right Lane
+			square({ x: 275, y: 550 }), // Bottom
+			horizontalLane({ x: 50, y: 550}), // Bottom: Left Lane
+			square({ x: 0, y: 550 }), // Bottom Left
 		]);
 	}
 
@@ -67,7 +92,7 @@ export class EngineService {
 	private gameLoop() {
 		setTimeout(() => {
 			this.checkTargets();
-			this.checkCollisions();
+			this.updateSpeed();
 			this.attackProcess();
 			this.checkDeadCreeps();
 			this.moveCreeps();
@@ -75,35 +100,11 @@ export class EngineService {
 		}, 16);
 	}
 
-	private checkCollisions() {
-		const creepsOrderedLeftToRight = this.creeps.sort((a, b) => a.x - b.x);
-
-		for (let i = 0; i < creepsOrderedLeftToRight.length; ++i) {
-			const c1 = creepsOrderedLeftToRight[i];
-			let frontCreepBlocking: ICreep = null;
-
-			if (c1.player === 1) {
-				// Check if a creep is blocking
-				if (i < this.creeps.length - 1) {
-					const c2 = creepsOrderedLeftToRight[i + 1];
-					if (c1.x + c1.width >= c2.x) {
-						frontCreepBlocking = c1;
-					}
-				}
-			} else {
-				if (i > 0) {
-					// Check if a creep is blocking
-					const c2 = creepsOrderedLeftToRight[i - 1];
-					if (c2.x + c2.width >= c1.x) {
-						frontCreepBlocking = c2;
-					}
-				}
-			}
-
-			if (frontCreepBlocking) {
-				c1.speed = 0;
-			} else if (c1.target !== null && c1.type === CreepType.Ranged) {
-				// For a range creep, we stop dead if we have a target.
+	private updateSpeed() {
+		for (let i = 0; i < this.creeps.length; ++i) {
+			const c1 = this.creeps[i];
+			// We stop dead if we have a target in range.
+			if (c1.targetInRange) {
 				c1.speed = 0;
 			} else {
 				c1.speed = c1.maxSpeed;

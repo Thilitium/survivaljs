@@ -17,6 +17,9 @@ import { DrawEvent } from 'src/app/events/draw-event';
 })
 export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	@Input() player: number;
+	@Input() x: number;
+	@Input() y: number;
+	@Input() color: string;
 
 	private subscriptions: Array<Subscription> = [];
 
@@ -24,7 +27,7 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	public rangedModifier: IStats;
 
 	public level = 1;
-	public respawnTime = 3;
+	public respawnTime = 10;
 	public baseCreepSpeed = 1;
 	public baseCreepValue = 10;
 	public upgradeCost = 20;
@@ -65,6 +68,9 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 		// TODO: Implement ranged creeps properly.
 		// this.spawnRangedCreepProcess();
 		this.spawnMeleeCreepProcess();
+		setTimeout(() => {
+			this.spawnRangedCreepProcess();
+		}, 500);
 	}
 
 	public upgradeHp() {
@@ -100,21 +106,22 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	}
 
 	private draw(e: DrawEvent) {
-		const x = this.player === 1 ? 200 : 750;
-		const color = this.player === 1 ? 'rgb(0, 0, 255)' : 'rgb(255, 0, 0)';
-
-		e.ctx.fillStyle = color;
-		e.ctx.fillRect(x, 275, 50, 50);
+		e.ctx.fillStyle = this.color;
+		e.ctx.fillRect(this.x, this.y, 50, 50);
 	}
 
 	private spawnMeleeCreepProcess() {
 		const creep = new Basher();
 		creep.player = this.player;
-		creep.x = this.player === 1 ? 250 : 740,
-		creep.y = this.player === 1 ? 276 : 314;
-		//creep.y = 295;
+
+		// Creeps will spawn in the middle of the barracks which is 50 px large.
+		creep.x = this.x + 25;
+		creep.y = this.y + 25;
+
 		creep.statsModifier = this.meleeModifier;
-		creep.destination = this.player === 1 ? { x: 740, y: 295 } : { x: 250, y: 295 };
+
+		// Let's just send everyone to the slaughter mid for now.
+		creep.destination = { x: 500, y: 300 };
 		creep.health = creep.maxHealth;
 
 		this.engine.creeps.push(creep);
@@ -127,9 +134,16 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	private spawnRangedCreepProcess() {
 		const creep = new Archer();
 		creep.player = this.player;
-		creep.x = this.player === 1 ? 50 : 480,
-		creep.y = 10;
-		creep.statsModifier = this.meleeModifier;
+
+		// Creeps will spawn in the middle of the barracks which is 50 px large.
+		creep.x = this.x + 25;
+		creep.y = this.y + 25;
+
+		// Let's just send everyone to the slaughter mid for now.
+		creep.destination = { x: 500, y: 300 };
+		creep.health = creep.maxHealth;
+
+		creep.statsModifier = this.rangedModifier;
 		this.engine.creeps.push(creep);
 
 		setTimeout(() => {

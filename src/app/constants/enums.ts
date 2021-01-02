@@ -1,5 +1,5 @@
 export enum CreepType {
 	Unknown,
-	Ranged,
-	Melee
+	Archer,
+	Basher
 }

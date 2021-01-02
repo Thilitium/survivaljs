@@ -3,14 +3,14 @@ import { IStats } from '../istats';
 import { CreepBase } from './creep-base';
 
 export class Basher extends CreepBase {
-	type: CreepType = CreepType.Melee;
+	type: CreepType = CreepType.Basher;
 
 	baseStats: IStats = {
-		maxHealth: 10,
+		maxHealth: 23,
 		maxSpeed: 1,
 		range: 1,
-		attack: 5,
-		attackSpeed: 1,
+		attack: 2,
+		attackSpeed: 0.5,
 		value: 10
 	};
 }

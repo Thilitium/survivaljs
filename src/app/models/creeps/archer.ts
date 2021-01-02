@@ -3,14 +3,14 @@ import { CreepType } from 'src/app/constants/enums';
 import { IStats } from '../istats';
 
 export class Archer extends CreepBase {
-	type: CreepType = CreepType.Ranged;
+	type: CreepType = CreepType.Archer;
 
 	baseStats: IStats = {
-		maxHealth: 5,
+		maxHealth: 8,
 		maxSpeed: 1,
-		range: 40,
-		attack: 2,
-		attackSpeed: 1,
+		range: 22,
+		attack: 0.8,
+		attackSpeed: 0.55,
 		value: 15
 	};
 }
