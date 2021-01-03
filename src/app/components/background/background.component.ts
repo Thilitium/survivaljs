@@ -33,7 +33,7 @@ export class BackgroundComponent implements OnInit {
 		e.ctx.fillRect(0, 0, 800, 600);
 
 		if (this.backgroundLoaded) {
-			e.ctx.drawImage(this.background, 200, 0);
+			e.ctx.drawImage(this.background, 0, 0);
 		}
 	}
 }

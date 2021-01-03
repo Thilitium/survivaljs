@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import { ICreep } from '../models/icreep';
 import { EventmanagerService } from './eventmanager.service';
-import { CreepType } from '../constants/enums';
+import { CreepType, Position } from '../constants/enums';
 import { ICoords } from '../models/icoords';
 import NavMesh from '../../scripts/navmesh.js';
+import { Constants } from '../constants/constants';
+import { Players } from '../models/players';
 
 @Injectable({
 	providedIn: 'root'
@@ -18,14 +20,62 @@ export class EngineService {
 	constructor(private events: EventmanagerService) {
 		this.creeps = [];
 
-		// Map start from x=200.
-		// Map is 600*600.
-		const xOffset = 200;
-		const yOffset = 0;
+		this.navMesh = this.constructNavMech();
+		this.setPlayers();
+	}
+
+	public start() {
+		this.gameLoop();
+	}
+
+	private setPlayers() {
+		Players.add(
+			{
+				name: 'one',
+				alive: true,
+				coords: Constants.Left,
+				ia: false,
+				id: 1,
+				position: Position.Left
+			}
+		);
+		Players.add(
+			{
+				name: 'two',
+				alive: true,
+				coords: Constants.Right,
+				ia: false,
+				id: 2,
+				position: Position.Right
+			}
+		);
+		Players.add(
+			{
+				name: 'three',
+				alive: true,
+				coords: Constants.Top,
+				ia: false,
+				id: 3,
+				position: Position.Top
+			}
+		);
+		Players.add(
+			{
+				name: 'four',
+				alive: true,
+				coords: Constants.Bottom,
+				ia: false,
+				id: 4,
+				position: Position.Bottom
+			}
+		);
+	}
+
+	private constructNavMech(): NavMesh {
 		const offsetCoords = (coords, start) => {
 			coords.forEach((c) => {
-				c.x += xOffset + start.x;
-				c.y += yOffset + start.y;
+				c.x += Constants.Offset.x + start.x;
+				c.y += Constants.Offset.y + start.y;
 			});
 
 			return coords;
@@ -60,7 +110,8 @@ export class EngineService {
 
 			return offsetCoords(coords, start);
 		};
-		this.navMesh = new NavMesh([
+
+		return new NavMesh([
 			horizontalLane({ x: 50, y: 275 }), // Mid Left lane
 			verticalLane({ x: 275, y: 50 }), // Mid Top lane
 			horizontalLane({ x: 325, y: 275 }), // Mid Right lane
@@ -85,9 +136,7 @@ export class EngineService {
 		]);
 	}
 
-	public start() {
-		this.gameLoop();
-	}
+
 
 	private gameLoop() {
 		setTimeout(() => {
@@ -95,6 +144,7 @@ export class EngineService {
 			this.updateSpeed();
 			this.attackProcess();
 			this.checkDeadCreeps();
+			this.checkCreepsWaypoints();
 			this.moveCreeps();
 			this.gameLoop();
 		}, 16);
@@ -177,6 +227,19 @@ export class EngineService {
 		deadCreepsIndexes.forEach(i => {
 			this.events.onCreepDied.emit({ creep: this.creeps[i] });
 			this.creeps.splice(i, 1);
+		});
+	}
+
+	private checkCreepsWaypoints() {
+		this.creeps.forEach(creep => {
+			if (creep.currentDestination && creep.destinations.length > 1) {
+				if (creep.x >= creep.currentDestination.x - 25 &&
+					creep.x <= creep.currentDestination.x + 25 &&
+					creep.y >= creep.currentDestination.y - 25 &&
+					creep.y <= creep.currentDestination.y + 25) {
+						creep.destinations.splice(0, 1);
+					}
+			}
 		});
 	}
 

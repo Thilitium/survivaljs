@@ -9,6 +9,10 @@ import { Basher } from 'src/app/models/creeps/basher';
 import { IStats } from 'src/app/models/istats';
 import { Archer } from 'src/app/models/creeps/archer';
 import { DrawEvent } from 'src/app/events/draw-event';
+import { Players } from 'src/app/models/players';
+import { Position } from 'src/app/constants/enums';
+import { Constants } from 'src/app/constants/constants';
+import { CreepBase } from 'src/app/models/creeps/creep-base';
 
 @Component({
 	selector: 'app-barrack',
@@ -89,14 +93,14 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 
 	public upgradeSpeed() {
 		if (this.gold >= this.upgradeCost) {
-			this.meleeModifier.maxSpeed += .5;
+			this.meleeModifier.maxSpeed += .1;
 			this.gold -= 20;
 		}
 	}
 
 	public upgradeRange() {
 		if (this.gold >= this.upgradeCost) {
-			this.meleeModifier.range++;
+			this.rangedModifier.attackSpeed += 0.1;
 			this.gold -= 20;
 		}
 	}
@@ -106,25 +110,13 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	}
 
 	private draw(e: DrawEvent) {
+		const oPlayer = Players.id(this.player);
 		e.ctx.fillStyle = this.color;
-		e.ctx.fillRect(this.x, this.y, 50, 50);
+		e.ctx.fillRect(oPlayer.coords.x - 25,  oPlayer.coords.y - 25, 50, 50);
 	}
 
 	private spawnMeleeCreepProcess() {
-		const creep = new Basher();
-		creep.player = this.player;
-
-		// Creeps will spawn in the middle of the barracks which is 50 px large.
-		creep.x = this.x + 25;
-		creep.y = this.y + 25;
-
-		creep.statsModifier = this.meleeModifier;
-
-		// Let's just send everyone to the slaughter mid for now.
-		creep.destination = { x: 500, y: 300 };
-		creep.health = creep.maxHealth;
-
-		this.engine.creeps.push(creep);
+		this.spawnCreeps(Basher, this.meleeModifier);
 
 		setTimeout(() => {
 			this.spawnMeleeCreepProcess();
@@ -132,23 +124,94 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	}
 
 	private spawnRangedCreepProcess() {
-		const creep = new Archer();
-		creep.player = this.player;
-
-		// Creeps will spawn in the middle of the barracks which is 50 px large.
-		creep.x = this.x + 25;
-		creep.y = this.y + 25;
-
-		// Let's just send everyone to the slaughter mid for now.
-		creep.destination = { x: 500, y: 300 };
-		creep.health = creep.maxHealth;
-
-		creep.statsModifier = this.rangedModifier;
-		this.engine.creeps.push(creep);
+		this.spawnCreeps(Archer, this.rangedModifier);
 
 		setTimeout(() => {
 			this.spawnRangedCreepProcess();
 		}, this.respawnTime * 1000);
+	}
+
+	private spawnCreeps<T extends CreepBase>(creepCtor: new() => T, modifier: IStats) {
+		var oPlayer = Players.id(this.player);
+
+		// We spawn creeps for all 3 lanes
+		for(let i = 0; i < 3; i++) {
+			const creep = new creepCtor();
+			creep.player = this.player;
+
+			// Creeps will spawn in the middle of the barracks which is 50 px large.
+			creep.x = oPlayer.coords.x;
+			creep.y = oPlayer.coords.y;
+
+			creep.statsModifier = modifier;
+
+			// Mid Lane
+			if (i === 0) {
+				creep.destinations.push(Constants.Mid);
+				switch(oPlayer.position) {
+					case Position.Top:
+						creep.destinations.push(Players.pos(Position.Bottom).coords);
+						break;
+					case Position.Left:
+						creep.destinations.push(Players.pos(Position.Right).coords);
+						break;
+					case Position.Bottom:
+						creep.destinations.push(Players.pos(Position.Top).coords);
+						break;
+					case Position.Right:
+						creep.destinations.push(Players.pos(Position.Left).coords);
+						break;
+				}
+			}
+
+			// Side Lane 1
+			if (i === 1) {
+				switch(oPlayer.position) {
+					case Position.Top:
+						creep.destinations.push(Constants.TopLeft);
+						creep.destinations.push(Players.pos(Position.Left).coords);
+						break;
+					case Position.Left:
+						creep.destinations.push(Constants.BottomLeft);
+						creep.destinations.push(Players.pos(Position.Bottom).coords);
+						break;
+					case Position.Bottom:
+						creep.destinations.push(Constants.BottomRight);
+						creep.destinations.push(Players.pos(Position.Right).coords);
+						break;
+					case Position.Right:
+						creep.destinations.push(Constants.TopRight);
+						creep.destinations.push(Players.pos(Position.Top).coords);
+						break;
+				}
+			}
+
+			// Side Lane 2
+			if (i === 2) {
+				switch(oPlayer.position) {
+					case Position.Top:
+						creep.destinations.push(Constants.TopRight);
+						creep.destinations.push(Players.pos(Position.Right).coords);
+						break;
+					case Position.Left:
+						creep.destinations.push(Constants.TopLeft);
+						creep.destinations.push(Players.pos(Position.Top).coords);
+						break;
+					case Position.Bottom:
+						creep.destinations.push(Constants.BottomLeft);
+						creep.destinations.push(Players.pos(Position.Left).coords);
+						break;
+					case Position.Right:
+						creep.destinations.push(Constants.BottomRight);
+						creep.destinations.push(Players.pos(Position.Bottom).coords);
+						break;
+				}
+			}
+
+			creep.health = creep.maxHealth;
+
+			this.engine.creeps.push(creep);
+		}
 	}
 
 	ngOnDestroy(): void {

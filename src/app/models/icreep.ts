@@ -17,7 +17,7 @@ export interface ICreep extends IStats, ICoords {
 	type: CreepType;
 	statsModifier: IStats;
 	baseStats: IStats;
-	destination: ICoords;
+	destinations: ICoords[];
 	currentDestination: ICoords;
 	lastDestination: ICoords;
 }
