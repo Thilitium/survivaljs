@@ -21,9 +21,11 @@ export class RenderService {
 	}
 
 	private render() {
-		this.events.onDraw0.emit(this.event);
-		this.events.onDraw1.emit(this.event);
-		this.events.onDraw2.emit(this.event);
+		this.events.onDrawBackground.emit(this.event);
+		this.events.onDrawBarracks.emit(this.event);
+		this.events.onDrawCreeps.emit(this.event);
+		this.events.onDrawAmbient.emit(this.event);
+		this.events.onDrawUi.emit(this.event);
 
 		requestAnimationFrame(() => this.render());
    	}

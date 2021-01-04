@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { CreepDiedEvent } from '../events/creep-died-event';
+import { CreepDiedEvent } from '../events/creeps/creep-died-event';
 import { CustomEventEmitter } from '../events/custom-event-emitter';
-import { CreepShotEvent } from '../events/creep-shot-event';
-import { CreepKilledEvent } from '../events/creep-killed-event';
+import { CreepShotEvent } from '../events/creeps/creep-shot-event';
+import { CreepKilledEvent } from '../events/creeps/creep-killed-event';
 import { DrawEvent } from '../events/draw-event';
+import { ProcessInputsEvent } from '../events/process-inputs-events';
 
 @Injectable({
 	providedIn: 'root'
@@ -12,9 +13,12 @@ export class EventmanagerService {
 	public onCreepKill = new CustomEventEmitter<CreepKilledEvent>();
 	public onCreepShot = new CustomEventEmitter<CreepShotEvent>();
 	public onCreepDied = new CustomEventEmitter<CreepDiedEvent>();
-	public onDraw0 = new CustomEventEmitter<DrawEvent>();
-	public onDraw1 = new CustomEventEmitter<DrawEvent>();
-	public onDraw2 = new CustomEventEmitter<DrawEvent>();
+	public onDrawBackground = new CustomEventEmitter<DrawEvent>();
+	public onDrawBarracks = new CustomEventEmitter<DrawEvent>();
+	public onDrawCreeps = new CustomEventEmitter<DrawEvent>();
+	public onDrawAmbient = new CustomEventEmitter<DrawEvent>();
+	public onDrawUi = new CustomEventEmitter<DrawEvent>();
+	public onProcessInputs = new CustomEventEmitter<ProcessInputsEvent>();
 
 	constructor() { }
 }

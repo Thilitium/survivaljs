@@ -7,7 +7,7 @@ export class Basher extends CreepBase {
 
 	baseStats: IStats = {
 		maxHealth: 23,
-		maxSpeed: 1,
+		maxSpeed: 0.6,
 		range: 1,
 		attack: 2,
 		attackSpeed: 0.5,

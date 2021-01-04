@@ -6,6 +6,8 @@ import { ICoords } from '../models/icoords';
 import NavMesh from '../../scripts/navmesh.js';
 import { Constants } from '../constants/constants';
 import { Players } from '../models/players';
+import { MouseService } from './mouse.service';
+import { ProcessInputsEvent } from '../events/process-inputs-events';
 
 @Injectable({
 	providedIn: 'root'
@@ -140,6 +142,7 @@ export class EngineService {
 
 	private gameLoop() {
 		setTimeout(() => {
+			this.events.onProcessInputs.emit(new ProcessInputsEvent());
 			this.checkTargets();
 			this.updateSpeed();
 			this.attackProcess();
@@ -181,7 +184,7 @@ export class EngineService {
 						minDist = dist;
 						target = other;
 
-						if (dist < (creep.range + (creep.width / 2) + (other.width / 2))) {
+						if (dist < (creep.range + (creep.range > 1 ? 0 : (creep.width / 2) + (other.width / 2)))) {
 							targetInRange = true;
 						}
 					}

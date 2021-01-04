@@ -1,11 +1,10 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { ICreep } from '../../models/icreep';
 import { EventmanagerService } from 'src/app/services/eventmanager.service';
 import { DrawEvent } from 'src/app/events/draw-event';
 import { Subscription } from 'rxjs';
-import { Basher } from 'src/app/models/creeps/basher';
-import { Archer } from 'src/app/models/creeps/archer';
 import { CreepType } from 'src/app/constants/enums';
+import { MouseService } from 'src/app/services/mouse.service';
 
 @Component({
 	selector: 'app-creep',
@@ -22,13 +21,13 @@ export class CreepComponent implements OnInit, OnDestroy {
 		return this.data.health / this.data.maxHealth;
 	}
 
-	constructor(private events: EventmanagerService) {
+	constructor(private events: EventmanagerService, private mouseService: MouseService) {
 		this.subscriptions.push(this.events.onCreepShot.subscribe(e => {
 			if (e.creep === this.data) {
 				this.shootingAnimation();
 			}
 		}));
-		this.subscriptions.push(this.events.onDraw2.subscribe((e) => this.draw(e)));
+		this.subscriptions.push(this.events.onDrawCreeps.subscribe((e) => this.draw(e)));
 	}
 
 	ngOnInit() {
@@ -46,10 +45,10 @@ export class CreepComponent implements OnInit, OnDestroy {
 		e.ctx.fillStyle = this.shootingDisplay ? 'rgb(255, 255, 0)' : 'rgb(0, 0, 0)';
 		e.ctx.beginPath();
 		if (this.data.type == CreepType.Archer) {
-		e.ctx.arc(this.data.x + this.data.width / 2, this.data.y + this.data.width / 2, (this.data.width) / 2, 0, 2 * Math.PI);
-	} else if (this.data.type == CreepType.Basher) {
-		e.ctx.rect(this.data.x, this.data.y, this.data.width, this.data.height);
-	}
+			e.ctx.arc(this.data.x + this.data.width / 2, this.data.y + this.data.width / 2, (this.data.width) / 2, 0, 2 * Math.PI);
+		} else if (this.data.type === CreepType.Basher) {
+			e.ctx.rect(this.data.x, this.data.y, this.data.width, this.data.height);
+		}
 		e.ctx.fill();
 
 		// Creep
@@ -60,20 +59,43 @@ export class CreepComponent implements OnInit, OnDestroy {
 		} else if (this.data.type == CreepType.Basher) {
 			e.ctx.rect(this.data.x + 1, this.data.y + 1, this.data.width - 2, this.data.height - 2);
 		}
-
 		e.ctx.fill();
+		e.ctx.closePath();
 
+		// Range indicator and health bar if hovering the creep or if selected
+		if (this.mouseService.hoveringCreep == this.data ||
+			this.mouseService.selectedCreeps.indexOf(this.data) >= 0) {
+			this.drawRangeIndicator(e.ctx);
+			this.drawHealthBar(e.ctx);
+		}
+	}
+
+
+	private drawRangeIndicator(ctx: CanvasRenderingContext2D) {
+		if (this.data.range > 1) {
+			ctx.beginPath();
+			ctx.strokeStyle = 'rgb(226, 67, 215)'
+			ctx.lineWidth = 1;
+			ctx.arc(this.data.x + this.data.width / 2, this.data.y + this.data.width / 2, this.data.range, 0, 2 * Math.PI);
+			ctx.stroke();
+			ctx.closePath();
+			ctx.restore();
+		}
+	}
+
+	private drawHealthBar(ctx: CanvasRenderingContext2D) {
 		// Health bar border
-		e.ctx.fillStyle = 'rgb(0, 0, 0)';
-		e.ctx.fillRect(this.data.x, this.data.y - 7, this.data.width, 5);
+		ctx.fillStyle = 'rgb(0, 0, 0)';
+		ctx.fillRect(this.data.x, this.data.y - 7, this.data.width, 5);
 
 		// Health bar background
-		e.ctx.fillStyle = 'rgb(255, 0, 0)';
-		e.ctx.fillRect(this.data.x + 1, this.data.y - 6, this.data.width - 2, 3);
+		ctx.fillStyle = 'rgb(255, 0, 0)';
+		ctx.fillRect(this.data.x + 1, this.data.y - 6, this.data.width - 2, 3);
 
 		// Health bar
-		e.ctx.fillStyle = 'rgb(0, 255, 0)';
-		e.ctx.fillRect(this.data.x + 1, this.data.y - 6, this.pctHealth * (this.data.width - 2), 3);
+		ctx.fillStyle = 'rgb(0, 255, 0)';
+		ctx.fillRect(this.data.x + 1, this.data.y - 6, this.pctHealth * (this.data.width - 2), 3);
+		ctx.restore();
 	}
 
 	ngOnDestroy(): void {

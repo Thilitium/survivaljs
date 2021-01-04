@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { GameComponent } from './components/game/game.component';
 import { BarrackComponent } from './components/barrack/barrack.component';
 import { CreepComponent } from './components/creep/creep.component';
+import { SelectionboxComponent } from './components/selectionbox/selectionbox.component';
 import { PlayerPipe } from './pipes/player.pipe';
 import { BackgroundComponent } from './components/background/background.component';
 
@@ -15,7 +16,8 @@ import { BackgroundComponent } from './components/background/background.componen
 		GameComponent,
 		BarrackComponent,
 		CreepComponent,
-		BackgroundComponent
+		BackgroundComponent,
+		SelectionboxComponent
 	],
 	imports: [
 		BrowserModule,

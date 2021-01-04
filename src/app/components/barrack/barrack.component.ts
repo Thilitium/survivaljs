@@ -31,7 +31,7 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	public rangedModifier: IStats;
 
 	public level = 1;
-	public respawnTime = 10;
+	public respawnTime = 15;
 	public baseCreepSpeed = 1;
 	public baseCreepValue = 10;
 	public upgradeCost = 20;
@@ -47,7 +47,7 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 				this.getGoldForCreep(e.creep);
 			}
 		}));
-		this.subscriptions.push(this.events.onDraw1.subscribe(e => this.draw(e)));
+		this.subscriptions.push(this.events.onDrawCreeps.subscribe(e => this.draw(e)));
 
 		this.meleeModifier = {
 			maxSpeed: 0,
