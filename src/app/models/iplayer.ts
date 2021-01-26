@@ -1,4 +1,5 @@
 import { Position } from '../constants/enums'
+import { Barrack } from './barrack'
 import { ICoords } from './icoords'
 
 export interface IPlayer {
@@ -8,4 +9,5 @@ export interface IPlayer {
 	coords: ICoords;
 	alive: boolean;
 	ia: boolean;
+	barrack: Barrack;
 }

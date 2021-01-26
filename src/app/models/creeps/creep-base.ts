@@ -2,8 +2,9 @@ import { IStats } from '../istats';
 import { CreepType } from 'src/app/constants/enums';
 import { ICreep } from '../icreep';
 import { ICoords } from '../icoords';
+import { GameObject } from '../gameobject';
 
-export class CreepBase implements ICreep {
+export class CreepBase extends GameObject implements ICreep {
 	baseStats: IStats = null;
 	type: CreepType = CreepType.Unknown;
 
@@ -41,5 +42,7 @@ export class CreepBase implements ICreep {
 	public get value(): number { return this.baseStats.value + this.statsModifier.value; }
 
 
-	constructor() {}
+	constructor() {
+		super();
+	}
 }

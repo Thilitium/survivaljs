@@ -1,19 +1,20 @@
 import { Injectable } from '@angular/core';
 import { ICreep } from '../models/icreep';
 import { EventmanagerService } from './eventmanager.service';
-import { CreepType, Position } from '../constants/enums';
+import { Position } from '../constants/enums';
 import { ICoords } from '../models/icoords';
 import NavMesh from '../../scripts/navmesh.js';
 import { Constants } from '../constants/constants';
 import { Players } from '../models/players';
-import { MouseService } from './mouse.service';
 import { ProcessInputsEvent } from '../events/process-inputs-events';
+import { CreepBase } from '../models/creeps/creep-base';
+import { Math2 } from 'src/helpers/Math2';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class EngineService {
-	public creeps: Array<ICreep>;
+	public creeps: Array<CreepBase>;
 	private navMesh: NavMesh;
 
 	// Tick rate in ms.
@@ -38,7 +39,8 @@ export class EngineService {
 				coords: Constants.Left,
 				ia: false,
 				id: 1,
-				position: Position.Left
+				position: Position.Left,
+				barrack: null
 			}
 		);
 		Players.add(
@@ -48,7 +50,8 @@ export class EngineService {
 				coords: Constants.Right,
 				ia: false,
 				id: 2,
-				position: Position.Right
+				position: Position.Right,
+				barrack: null
 			}
 		);
 		Players.add(
@@ -58,7 +61,8 @@ export class EngineService {
 				coords: Constants.Top,
 				ia: false,
 				id: 3,
-				position: Position.Top
+				position: Position.Top,
+				barrack: null
 			}
 		);
 		Players.add(
@@ -68,7 +72,8 @@ export class EngineService {
 				coords: Constants.Bottom,
 				ia: false,
 				id: 4,
-				position: Position.Bottom
+				position: Position.Bottom,
+				barrack: null
 			}
 		);
 	}
@@ -173,10 +178,7 @@ export class EngineService {
 
 			this.creeps.forEach(other => {
 				if (creep !== other && creep.player !== other.player) {
-					const dist = Math.sqrt(
-						Math.pow((other.x + other.width / 2) - (creep.x + creep.width / 2), 2) +
-						Math.pow((other.y + other.height / 2) - (creep.y + creep.height / 2), 2)
-					);
+					const dist = Math2.dist(other, creep);
 
 					// We assume that the creep is a circle and we add radius to account
 					// for the size of the creep when taking range into account.
@@ -236,12 +238,13 @@ export class EngineService {
 	private checkCreepsWaypoints() {
 		this.creeps.forEach(creep => {
 			if (creep.currentDestination && creep.destinations.length > 1) {
-				if (creep.x >= creep.currentDestination.x - 25 &&
-					creep.x <= creep.currentDestination.x + 25 &&
-					creep.y >= creep.currentDestination.y - 25 &&
-					creep.y <= creep.currentDestination.y + 25) {
-						creep.destinations.splice(0, 1);
-					}
+				if (Math2.isInBoundingBox(
+					{ x: creep.currentDestination.x - 25, y: creep.currentDestination.y - 25 },
+					{ x: creep.currentDestination.x + 25, y: creep.currentDestination.y + 25 },
+					creep))
+				{
+					creep.destinations.splice(0, 1);
+				}
 			}
 		});
 	}

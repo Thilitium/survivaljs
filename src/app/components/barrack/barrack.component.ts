@@ -13,6 +13,7 @@ import { Players } from 'src/app/models/players';
 import { Position } from 'src/app/constants/enums';
 import { Constants } from 'src/app/constants/constants';
 import { CreepBase } from 'src/app/models/creeps/creep-base';
+import { IPlayer } from 'src/app/models/iplayer';
 
 @Component({
 	selector: 'app-barrack',
@@ -20,10 +21,14 @@ import { CreepBase } from 'src/app/models/creeps/creep-base';
 	styleUrls: ['./barrack.component.css']
 })
 export class BarrackComponent implements OnInit, Barrack, OnDestroy {
-	@Input() player: number;
+	@Input() playerN: number;
 	@Input() x: number;
 	@Input() y: number;
 	@Input() color: string;
+	public get player() : IPlayer {
+		return Players.id(this.playerN);
+	}
+	public selected: false;
 
 	private subscriptions: Array<Subscription> = [];
 
@@ -38,12 +43,12 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	public gold = 999999;
 
 	get creeps(): Array<ICreep> {
-		return this.playerPipe.transform(this.engine.creeps, this.player);
+		return this.playerPipe.transform(this.engine.creeps, this.player.id);
 	}
 
 	constructor(private engine: EngineService, private events: EventmanagerService, private playerPipe: PlayerPipe) {
 		this.subscriptions.push(events.onCreepKill.subscribe(e => {
-			if (e.killer.player === this.player) {
+			if (e.killer.player === this.player.id) {
 				this.getGoldForCreep(e.creep);
 			}
 		}));
@@ -75,6 +80,7 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 		setTimeout(() => {
 			this.spawnRangedCreepProcess();
 		}, 500);
+		this.player.barrack = this;
 	}
 
 	public upgradeHp() {
@@ -110,7 +116,7 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	}
 
 	private draw(e: DrawEvent) {
-		const oPlayer = Players.id(this.player);
+		const oPlayer = this.player;
 		e.ctx.fillStyle = this.color;
 		e.ctx.fillRect(oPlayer.coords.x - 25,  oPlayer.coords.y - 25, 50, 50);
 	}
@@ -132,12 +138,12 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 	}
 
 	private spawnCreeps<T extends CreepBase>(creepCtor: new() => T, modifier: IStats) {
-		var oPlayer = Players.id(this.player);
+		var oPlayer = this.player;
 
 		// We spawn creeps for all 3 lanes
 		for(let i = 0; i < 3; i++) {
 			const creep = new creepCtor();
-			creep.player = this.player;
+			creep.player = this.player.id;
 
 			// Creeps will spawn in the middle of the barracks which is 50 px large.
 			creep.x = oPlayer.coords.x;

@@ -1,10 +1,10 @@
-import { ReturnStatement } from "@angular/compiler";
 import { Injectable } from "@angular/core";
-import { EventManager } from "@angular/platform-browser";
-import { CreepComponent } from "../components/creep/creep.component";
+import { Math2 } from "src/helpers/Math2";
+import { IBuilding } from "../models/ibuilding";
 import { ICoords } from "../models/icoords";
 import { ICreep } from "../models/icreep";
 import { Mouse } from "../models/mouse";
+import { Players } from "../models/players";
 import { EngineService } from "./engine.service";
 import { EventmanagerService } from "./eventmanager.service";
 
@@ -17,20 +17,19 @@ export class MouseService {
 	public selectedCreeps: ICreep[] = [];
 	public selectionBoxStart: ICoords = null;
 	public selectionBoxEnd: ICoords = null;
+	public selectedBuilding: IBuilding = null;
 
 	constructor(private engine: EngineService, private events: EventmanagerService) {
 		this.events.onProcessInputs.subscribe(() => this.processInputs());
 	}
 
+	// Process user inputs and update the service state (i.e hovered creeps and selection box end), usually called on each frame.
+	// Warning, this is probably a heavy process, it would be cool to run this in parallel if we can be thread safe.
 	public processInputs() {
-		// Check if hovering creep.
-		// We only retain the first creep that is hovered in the order of the list.
 		this.hoveringCreep = null;
+
 		this.engine.creeps.some((creep) => {
-			if (this.mouse.x <= creep.x + creep.width &&
-				this.mouse.x >= creep.x &&
-				this.mouse.y <= creep.y + creep.height &&
-				this.mouse.y >= creep.y) {
+			if (Math2.isInBoundingBox(creep, { x: creep.x + creep.width, y: creep.y + creep.height }, this.mouse)) {
 					this.hoveringCreep = creep;
 			}
 
@@ -43,6 +42,7 @@ export class MouseService {
 		}
 	}
 
+	// On mouse dowm, we start the selection and save the current value as the start of the selectionbox.
 	public startSelection() {
 		this.selectedCreeps = [];
 		if (this.selectionBoxStart === null) {
@@ -50,33 +50,35 @@ export class MouseService {
 		}
 	}
 
+	// Could also be called commitSelection, happens on mouse up and basically selects all the creeps that needs to be selected, if any.
 	public stopSelection() {
-		// Get creeps in the bounding box of the selection if it existed.
-		if (this.selectionBoxEnd) {
-			this.engine.creeps.forEach((creep) => {
-				if (this.selectionBoxStart.x > this.selectionBoxEnd.x) {
-					if (!(creep.x <= this.selectionBoxStart.x && creep.x >= this.selectionBoxEnd.x))
-						return;
-				} else {
-					if (!(creep.x <= this.selectionBoxEnd.x && creep.x >= this.selectionBoxStart.x))
-						return;
+		// Get creeps in the bounding box of the selection if it existed and it was larger than 4px.
+		if (this.selectionBoxEnd && (Math2.dist(this.selectionBoxStart, this.selectionBoxEnd) > 4)) {
+			Players.getAll().forEach((p) => {
+				if (Math2.isInBoundingBox(this.selectionBoxStart, this.selectionBoxEnd, p.barrack)) {
+					this.selectedBuilding = p.barrack;
 				}
-
-				if (this.selectionBoxStart.y > this.selectionBoxEnd.y) {
-					if (!(creep.y <= this.selectionBoxStart.y && creep.y >= this.selectionBoxEnd.y))
-						return;
-				} else {
-					if (!(creep.y <= this.selectionBoxEnd.y && creep.y >= this.selectionBoxStart.y))
-						return;
-				}
-
-				this.selectedCreeps.push(creep);
 			});
+
+			this.engine.creeps.forEach((creep) => {
+				if (Math2.isInBoundingBox(this.selectionBoxStart, this.selectionBoxEnd, creep)) {
+					this.selectedCreeps.push(creep);
+				}
+			});
+		} else {
+			// If we have no selection box or just a small one we check if the mouse is inside of a creep.
+			// We take the first one we find
+			this.engine.creeps.some((creep) => {
+				if (Math2.isInBoundingBox(creep.boundingBox().start, creep.boundingBox().end, this.mouse)) {
+					this.selectedCreeps.push(creep);
+					return true;
+				}
+
+				return false;
+			})
 		}
 
 		this.selectionBoxEnd = null;
 		this.selectionBoxStart = null;
 	}
-
-
 }
