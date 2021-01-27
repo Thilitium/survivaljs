@@ -4,7 +4,7 @@ import { IBuilding } from "../models/ibuilding";
 import { ICoords } from "../models/icoords";
 import { ICreep } from "../models/icreep";
 import { Mouse } from "../models/mouse";
-import { Players } from "../models/players";
+import { Players } from "./players";
 import { EngineService } from "./engine.service";
 import { EventmanagerService } from "./eventmanager.service";
 
@@ -54,7 +54,7 @@ export class MouseService {
 	public stopSelection() {
 		// Get creeps in the bounding box of the selection if it existed and it was larger than 4px.
 		if (this.selectionBoxEnd && (Math2.dist(this.selectionBoxStart, this.selectionBoxEnd) > 4)) {
-			Players.getAll().forEach((p) => {
+			Players.getAll().some((p) => {
 				if (Math2.isInBoundingBox(this.selectionBoxStart, this.selectionBoxEnd, p.barrack)) {
 					this.selectedBuilding = p.barrack;
 				}

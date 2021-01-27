@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { IPlayer } from 'src/app/models/iplayer';
+import { Players } from 'src/app/services/players';
 import { EngineService } from '../../services/engine.service';
 
 @Component({
@@ -9,7 +11,10 @@ import { EngineService } from '../../services/engine.service';
 export class GameComponent implements OnInit {
 	constructor(private engine: EngineService) { }
 
+	public player: IPlayer = null;
+
 	ngOnInit() {
 		this.engine.start();
+		this.player = Players.getActive();
 	}
 }

@@ -1,5 +1,5 @@
 import { Position } from "../constants/enums";
-import { IPlayer } from "./iplayer";
+import { IPlayer } from "../models/iplayer";
 
 export class Players {
 	private static players: IPlayer[] = [];
@@ -18,5 +18,10 @@ export class Players {
 
 	public static getAll(): IPlayer[] {
 		return this.players;
+	}
+
+	public static getActive(): IPlayer {
+		//TODO: Proper active player management.
+		return this.id(1);
 	}
 }

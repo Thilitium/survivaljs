@@ -3,6 +3,7 @@ import { CreepType } from 'src/app/constants/enums';
 import { ICreep } from '../icreep';
 import { ICoords } from '../icoords';
 import { GameObject } from '../gameobject';
+import { IPlayer } from '../iplayer';
 
 export class CreepBase extends GameObject implements ICreep {
 	baseStats: IStats = null;
@@ -12,7 +13,7 @@ export class CreepBase extends GameObject implements ICreep {
 	x = 0;
 	y = 0;
 	destinations = [];
-	player = -1;
+	player: IPlayer = null;
 	target: ICreep = null;
 	width = 10;
 	height = 10;

@@ -50,9 +50,10 @@ export class CreepComponent implements OnInit, OnDestroy {
 			e.ctx.rect(this.data.x, this.data.y, this.data.width, this.data.height);
 		}
 		e.ctx.fill();
+		e.ctx.closePath();
 
 		// Creep
-		e.ctx.fillStyle = this.color;
+		e.ctx.fillStyle = this.data.player.color;
 		e.ctx.beginPath();
 		if (this.data.type == CreepType.Archer) {
 			e.ctx.arc(this.data.x + this.data.width / 2, this.data.y + this.data.width / 2, (this.data.width - 1) / 2, 0, 2 * Math.PI);
@@ -61,6 +62,7 @@ export class CreepComponent implements OnInit, OnDestroy {
 		}
 		e.ctx.fill();
 		e.ctx.closePath();
+		e.ctx.restore();
 
 		// Range indicator and health bar if hovering the creep or if selected
 		if (this.mouseService.hoveringCreep == this.data ||

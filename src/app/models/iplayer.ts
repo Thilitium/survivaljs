@@ -10,4 +10,6 @@ export interface IPlayer {
 	alive: boolean;
 	ia: boolean;
 	barrack: Barrack;
+	gold: number;
+	color: string;
 }

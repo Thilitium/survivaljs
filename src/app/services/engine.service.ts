@@ -5,7 +5,7 @@ import { Position } from '../constants/enums';
 import { ICoords } from '../models/icoords';
 import NavMesh from '../../scripts/navmesh.js';
 import { Constants } from '../constants/constants';
-import { Players } from '../models/players';
+import { Players } from './players';
 import { ProcessInputsEvent } from '../events/process-inputs-events';
 import { CreepBase } from '../models/creeps/creep-base';
 import { Math2 } from 'src/helpers/Math2';
@@ -40,7 +40,9 @@ export class EngineService {
 				ia: false,
 				id: 1,
 				position: Position.Left,
-				barrack: null
+				barrack: null,
+				gold: 100,
+				color: 'rgb(0, 0, 255)'
 			}
 		);
 		Players.add(
@@ -51,7 +53,9 @@ export class EngineService {
 				ia: false,
 				id: 2,
 				position: Position.Right,
-				barrack: null
+				barrack: null,
+				gold: 100,
+				color: 'rgb(255, 0, 0)'
 			}
 		);
 		Players.add(
@@ -62,7 +66,9 @@ export class EngineService {
 				ia: false,
 				id: 3,
 				position: Position.Top,
-				barrack: null
+				barrack: null,
+				gold: 100,
+				color: 'rgb(0, 255, 0)'
 			}
 		);
 		Players.add(
@@ -73,7 +79,9 @@ export class EngineService {
 				ia: false,
 				id: 4,
 				position: Position.Bottom,
-				barrack: null
+				barrack: null,
+				gold: 100,
+				color: 'rgb(240, 240, 240)'
 			}
 		);
 	}

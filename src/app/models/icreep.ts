@@ -1,13 +1,14 @@
 import { CreepType } from '../constants/enums';
 import { IStats } from './istats';
 import { ICoords } from './icoords';
+import { IPlayer } from './iplayer';
 
 
 export interface ICreep extends IStats, ICoords {
 	aggroRange: number;
 	targetInRange: boolean;
 	speed: number;
-	player: number;
+	player: IPlayer;
 	target: ICreep;
 	width: number;
 	height: number;
