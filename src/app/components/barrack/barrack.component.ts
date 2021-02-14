@@ -1,17 +1,11 @@
 import { Barrack } from '../../models/barrack';
 import { ICreep } from '../../models/icreep';
 import { Subscription } from 'rxjs';
-import { IStats } from 'src/app/models/istats';
 import { DrawEvent } from 'src/app/events/draw-event';
-import { Players } from 'src/app/services/players';
-import { Position } from 'src/app/constants/enums';
-import { Constants } from 'src/app/constants/constants';
 import { IPlayer } from 'src/app/models/iplayer';
 import { EngineService } from 'src/app/services/engine.service';
 import { EventmanagerService } from 'src/app/services/eventmanager.service';
-import { Basher } from 'src/app/models/creeps/basher';
-import { Archer } from 'src/app/models/creeps/archer';
-import { CreepBase } from 'src/app/models/creeps/creep-base';
+import { UiLayer } from 'src/app/constants/enums';
 
 export class BarrackComponent extends Barrack {
 
@@ -31,7 +25,12 @@ export class BarrackComponent extends Barrack {
 				this.getGoldForCreep(e.creep);
 			}
 		}));
-		this.subscriptions.push(this.events.onDrawCreeps.subscribe(e => this.draw(e)));
+		//this.subscriptions.push(this.events.onDrawCreeps.subscribe(e => this.draw(e)));
+		this.subscriptions.push(
+			this.events.onRequestDraw.subscribe(e =>
+				this.events.onScheduleDraw.emit(
+					{action: (ctx) => this.draw({ctx: ctx}), layer: UiLayer.BUILDINGS, frameId: e.frameId}
+				)));
 
 		this.meleeModifier = {
 			maxSpeed: 0,

@@ -1,4 +1,5 @@
 import { Component, Input, OnDestroy } from "@angular/core";
+import { UiLayer } from "src/app/constants/enums";
 import { DrawEvent } from "src/app/events/draw-event";
 import { IPlayer } from "src/app/models/iplayer";
 import { EventmanagerService } from "src/app/services/eventmanager.service";
@@ -19,7 +20,14 @@ export class ResourcesComponent implements OnDestroy {
 	constructor(private render: RenderService) {
 		this.events = EventmanagerService.get();
 		this.mouse = MouseService.get();
-		this.events.onDrawUi.subscribe((e) => this.draw(e));
+		//this.events.onDrawUi.subscribe((e) => this.draw(e));
+		this.events.onRequestDraw.subscribe(e => {
+			this.events.onScheduleDraw.emit({
+				action: (ctx) => this.draw({ctx: ctx}),
+				layer: UiLayer.UI,
+				frameId: e.frameId
+			});
+		});
 	}
 
 	private draw(e: DrawEvent) {
@@ -34,6 +42,6 @@ export class ResourcesComponent implements OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.events.onDrawUi.unsubscribe();
+		//this.events.onDrawUi.unsubscribe();
 	}
 }

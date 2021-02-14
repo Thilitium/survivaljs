@@ -6,17 +6,16 @@ import { CreepKilledEvent } from '../events/creeps/creep-killed-event';
 import { DrawEvent } from '../events/draw-event';
 import { ProcessInputsEvent } from '../events/process-inputs-events';
 import { EventManager } from '@angular/platform-browser';
+import { ScheduleDrawEvent } from '../events/schedule-draw-event';
+import { RequestDrawEvent } from '../events/request-draw-event';
 
 export class EventmanagerService {
 	public onCreepKill = new CustomEventEmitter<CreepKilledEvent>();
 	public onCreepShot = new CustomEventEmitter<CreepShotEvent>();
 	public onCreepDied = new CustomEventEmitter<CreepDiedEvent>();
-	public onDrawBackground = new CustomEventEmitter<DrawEvent>();
-	public onDrawBarracks = new CustomEventEmitter<DrawEvent>();
-	public onDrawCreeps = new CustomEventEmitter<DrawEvent>();
-	public onDrawAmbient = new CustomEventEmitter<DrawEvent>();
-	public onDrawUi = new CustomEventEmitter<DrawEvent>();
 	public onProcessInputs = new CustomEventEmitter<ProcessInputsEvent>();
+	public onScheduleDraw = new CustomEventEmitter<ScheduleDrawEvent>();
+	public onRequestDraw = new CustomEventEmitter<RequestDrawEvent>();
 
 	private static _instance = null;
 	public static get(): EventmanagerService {

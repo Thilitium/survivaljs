@@ -15,3 +15,14 @@ export enum Position {
 	Bottom,
 	BottomLeft
 }
+
+export enum UiLayer {
+	BACKGROUND,
+	GROUND,
+	SELECTIONS,
+	BUILDINGS,
+	CREEPS,
+	FX,
+	INFO,
+	UI
+}

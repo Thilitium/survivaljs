@@ -2,7 +2,7 @@
 import { EventmanagerService } from 'src/app/services/eventmanager.service';
 import { DrawEvent } from 'src/app/events/draw-event';
 import { Subscription } from 'rxjs';
-import { CreepType } from 'src/app/constants/enums';
+import { CreepType, UiLayer } from 'src/app/constants/enums';
 import { CreepBase } from 'src/app/models/creeps/creep-base';
 import { MouseService } from 'src/app/services/mouse.service';
 import { IDisposable } from 'src/app/models/idisposable';
@@ -27,7 +27,16 @@ export class CreepComponent extends CreepBase implements IDisposable {
 				this.shootingAnimation();
 			}
 		}));
-		this.subscriptions.push(this.events.onDrawCreeps.subscribe((e) => this.draw(e)));
+		//this.subscriptions.push(this.events.onDrawCreeps.subscribe((e) => this.draw(e)));
+		this.subscriptions.push(
+			this.events.onRequestDraw.subscribe(e => {
+				this.events.onScheduleDraw.emit({
+					action: (ctx) => this.draw({ctx: ctx}),
+					frameId: e.frameId,
+					layer: UiLayer.CREEPS
+				});
+			})
+		)
 	}
 
 	public dispose(): void {
@@ -79,7 +88,7 @@ export class CreepComponent extends CreepBase implements IDisposable {
 
 		// Attacking animation
 		if (this.shootingDisplay && this.target !== null) {
-			e.ctx.fillStyle = 'yellow';
+			e.ctx.strokeStyle = 'yellow';
 			e.ctx.beginPath();
 			e.ctx.moveTo(this.center().x, this.center().y);
 			e.ctx.lineTo(this.target.center().x, this.target.center().y);

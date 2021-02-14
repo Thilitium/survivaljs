@@ -1,4 +1,5 @@
 import { Component, OnDestroy } from "@angular/core";
+import { UiLayer } from "src/app/constants/enums";
 import { DrawEvent } from "src/app/events/draw-event";
 import { EventmanagerService } from "src/app/services/eventmanager.service";
 import { MouseService } from "src/app/services/mouse.service";
@@ -14,7 +15,14 @@ export class SelectionboxComponent implements OnDestroy {
 	constructor(private render: RenderService) {
 		this.events = EventmanagerService.get();
 		this.mouse = MouseService.get();
-		this.events.onDrawUi.subscribe((e) => this.draw(e));
+		this.events.onRequestDraw.subscribe(e => {
+			this.events.onScheduleDraw.emit({
+				frameId: e.frameId,
+				action: (ctx) => this.draw({ctx: ctx}),
+				layer: UiLayer.UI
+			});
+		});
+		//this.events.onDrawUi.subscribe((e) => this.draw(e));
 	}
 
 	private draw(e: DrawEvent) {
@@ -37,6 +45,5 @@ export class SelectionboxComponent implements OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.events.onDrawUi.unsubscribe();
 	}
 }

@@ -16,7 +16,7 @@ export class UnitInfoComponent implements OnDestroy {
 	@Input() y: number;
 
 	constructor(private events: EventmanagerService, private mouse: MouseService, private render: RenderService) {
-		this.events.onDrawUi.subscribe((e) => this.draw(e));
+		//this.events.onDrawUi.subscribe((e) => this.draw(e));
 	}
 
 	private draw(e: DrawEvent) {
@@ -24,6 +24,6 @@ export class UnitInfoComponent implements OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.events.onDrawUi.unsubscribe();
+		//this.events.onDrawUi.unsubscribe();
 	}
 }

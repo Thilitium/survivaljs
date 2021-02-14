@@ -12,6 +12,7 @@ import { IStats } from '../models/istats';
 import { Basher } from '../models/creeps/basher';
 import { Barrack } from '../models/barrack';
 import { Archer } from '../models/creeps/archer';
+import { Tower } from '../models/creeps/tower';
 
 export class EngineService {
 	public creeps: Array<CreepBase>;
@@ -41,6 +42,12 @@ export class EngineService {
 
 	public start() {
 		this.gameLoop();
+	}
+
+	private spawnTowers() {
+		Players.getAll().forEach(p => {
+
+		});
 	}
 
 	private setPlayers() {
@@ -97,10 +104,10 @@ export class EngineService {
 			}
 		);
 
-		new BarrackComponent(this, this.events, p1);
-		new BarrackComponent(this, this.events, p2);
-		new BarrackComponent(this, this.events, p3);
-		new BarrackComponent(this, this.events, p4);
+		Players.getAll().forEach(p => {
+			var b = new BarrackComponent(this, this.events, p);
+		});
+
 	}
 
 	private constructNavMech(): NavMesh {
@@ -167,8 +174,6 @@ export class EngineService {
 			square({ x: 0, y: 550 }), // Bottom Left
 		]);
 	}
-
-
 
 	private gameLoop() {
 		setTimeout(() => {

@@ -4,6 +4,7 @@ import { EventmanagerService } from 'src/app/services/eventmanager.service';
 import { MouseService} from 'src/app/services/mouse.service';
 import { DrawEvent } from 'src/app/events/draw-event';
 import { Mouse } from 'src/app/models/mouse';
+import { UiLayer } from 'src/app/constants/enums';
 
 @Component({
 	selector: 'app-background',
@@ -12,6 +13,7 @@ import { Mouse } from 'src/app/models/mouse';
 })
 export class BackgroundComponent implements OnInit {
 	@ViewChild('canvas', {static: true}) canvas: ElementRef<HTMLCanvasElement>;
+	@ViewChild('ui', {static: true}) ui: ElementRef<HTMLCanvasElement>;
 
 	private events: EventmanagerService;
 	private mouseManager: MouseService;
@@ -27,13 +29,22 @@ export class BackgroundComponent implements OnInit {
 		};
 		this.background.src = '../../assets/map.png';
 
-		this.events.onDrawBackground.subscribe((e) => this.draw(e));
+		this.events.onRequestDraw.subscribe((e) => {
+			this.events.onScheduleDraw.emit({
+				action: (ctx) => this.draw({ctx: ctx}),
+				layer: UiLayer.BACKGROUND,
+				frameId: e.frameId
+			});
+		});
+		//this.events.onDrawBackground.subscribe((e) => this.draw(e));
 	}
 
 	ngOnInit() {
 		this.registerEvents();
-		const ctx = this.canvas.nativeElement.getContext('2d');
-		this.render.init(ctx);
+		this.render.init(
+			this.canvas.nativeElement.getContext('2d'),
+			this.ui.nativeElement.getContext('2d')
+		);
 	}
 
 	private registerEvents() {
