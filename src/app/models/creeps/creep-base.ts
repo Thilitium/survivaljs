@@ -14,7 +14,7 @@ export class CreepBase extends GameObject implements ICreep {
 	y = 0;
 	destinations = [];
 	player: IPlayer = null;
-	target: ICreep = null;
+	target: CreepBase = null;
 	width = 10;
 	height = 10;
 	health = 10;
@@ -42,6 +42,9 @@ export class CreepBase extends GameObject implements ICreep {
 	public get attackSpeed(): number { return this.baseStats.attackSpeed + this.statsModifier.attackSpeed; }
 	public get value(): number { return this.baseStats.value + this.statsModifier.value; }
 
+	public dispose(): void {
+		throw new console.error("not implemented");
+	};
 
 	constructor() {
 		super();

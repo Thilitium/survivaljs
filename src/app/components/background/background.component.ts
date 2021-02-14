@@ -1,10 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { RenderService } from 'src/app/services/render.service';
 import { EventmanagerService } from 'src/app/services/eventmanager.service';
+import { MouseService} from 'src/app/services/mouse.service';
 import { DrawEvent } from 'src/app/events/draw-event';
-import { MouseService } from 'src/app/services/mouse.service';
-import { fromEvent } from 'rxjs';
-import { switchMap, takeUntil, pairwise } from 'rxjs/operators';
 import { Mouse } from 'src/app/models/mouse';
 
 @Component({
@@ -15,10 +13,14 @@ import { Mouse } from 'src/app/models/mouse';
 export class BackgroundComponent implements OnInit {
 	@ViewChild('canvas', {static: true}) canvas: ElementRef<HTMLCanvasElement>;
 
+	private events: EventmanagerService;
+	private mouseManager: MouseService;
 	private background: HTMLImageElement;
 	private backgroundLoaded = false;
 
-	constructor(private events: EventmanagerService, private render: RenderService, private mouseManager: MouseService) {
+	constructor(private render: RenderService) {
+		this.events = EventmanagerService.get();
+		this.mouseManager = MouseService.get();
 		this.background = new Image();
 		this.background.onload = () => {
 			this.backgroundLoaded = true;

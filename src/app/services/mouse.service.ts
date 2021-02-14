@@ -8,10 +8,10 @@ import { Players } from "./players";
 import { EngineService } from "./engine.service";
 import { EventmanagerService } from "./eventmanager.service";
 
-@Injectable({
-	providedIn: "root"
-})
 export class MouseService {
+	private engine: EngineService;
+	private events: EventmanagerService;
+
 	private mouse: Mouse = Mouse.get();
 	public hoveringCreep: ICreep = null;
 	public selectedCreeps: ICreep[] = [];
@@ -19,7 +19,19 @@ export class MouseService {
 	public selectionBoxEnd: ICoords = null;
 	public selectedBuilding: IBuilding = null;
 
-	constructor(private engine: EngineService, private events: EventmanagerService) {
+	private static _instance = null;
+
+	public static get(): MouseService {
+		if (this._instance === null) {
+			this._instance = new this();
+		}
+
+		return this._instance;
+	}
+
+	private constructor() {
+		this.events = EventmanagerService.get();
+		this.engine = EngineService.get();
 		this.events.onProcessInputs.subscribe(() => this.processInputs());
 	}
 

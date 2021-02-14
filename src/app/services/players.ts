@@ -12,8 +12,9 @@ export class Players {
 		return this.players.filter(p => p.id === id)[0];
 	}
 
-	public static add(player: IPlayer) {
+	public static add(player: IPlayer): IPlayer {
 		this.players.push(player);
+		return player;
 	}
 
 	public static getAll(): IPlayer[] {

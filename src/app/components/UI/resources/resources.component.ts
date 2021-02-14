@@ -13,8 +13,12 @@ export class ResourcesComponent implements OnDestroy {
 	@Input() player: IPlayer;
 	@Input() x: number;
 	@Input() y: number;
+	private events: EventmanagerService;
+	private mouse: MouseService;
 
-	constructor(private events: EventmanagerService, private mouse: MouseService, private render: RenderService) {
+	constructor(private render: RenderService) {
+		this.events = EventmanagerService.get();
+		this.mouse = MouseService.get();
 		this.events.onDrawUi.subscribe((e) => this.draw(e));
 	}
 

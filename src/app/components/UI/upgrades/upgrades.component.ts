@@ -14,7 +14,11 @@ export class UpgradesComponent implements OnDestroy {
 	@Input() x: number;
 	@Input() y: number;
 
-	constructor(private events: EventmanagerService, private mouse: MouseService, private render: RenderService) {
+	private events: EventmanagerService;
+	private mouse: MouseService;
+	constructor(private render: RenderService) {
+		this.events = EventmanagerService.get();
+		this.mouse = MouseService.get();
 		this.events.onDrawUi.subscribe((e) => this.draw(e));
 	}
 

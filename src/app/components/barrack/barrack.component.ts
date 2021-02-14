@@ -1,48 +1,31 @@
-import { Component, OnInit, ViewChild, Input, ElementRef, OnDestroy } from '@angular/core';
 import { Barrack } from '../../models/barrack';
 import { ICreep } from '../../models/icreep';
-import { EngineService } from '../../services/engine.service';
-import { EventmanagerService } from 'src/app/services/eventmanager.service';
 import { Subscription } from 'rxjs';
-import { Basher } from 'src/app/models/creeps/basher';
 import { IStats } from 'src/app/models/istats';
-import { Archer } from 'src/app/models/creeps/archer';
 import { DrawEvent } from 'src/app/events/draw-event';
 import { Players } from 'src/app/services/players';
 import { Position } from 'src/app/constants/enums';
 import { Constants } from 'src/app/constants/constants';
-import { CreepBase } from 'src/app/models/creeps/creep-base';
 import { IPlayer } from 'src/app/models/iplayer';
+import { EngineService } from 'src/app/services/engine.service';
+import { EventmanagerService } from 'src/app/services/eventmanager.service';
+import { Basher } from 'src/app/models/creeps/basher';
+import { Archer } from 'src/app/models/creeps/archer';
+import { CreepBase } from 'src/app/models/creeps/creep-base';
 
-@Component({
-	selector: 'app-barrack',
-	templateUrl: './barrack.component.html'
-})
-export class BarrackComponent implements OnInit, Barrack, OnDestroy {
-	@Input() playerN: number;
-	@Input() x: number;
-	@Input() y: number;
-	public get player() : IPlayer {
-		return Players.id(this.playerN);
-	}
-	public selected: false;
+export class BarrackComponent extends Barrack {
 
 	private subscriptions: Array<Subscription> = [];
 
-	public meleeModifier: IStats;
-	public rangedModifier: IStats;
 
 	public level = 1;
-	public respawnTime = 15;
+	public respawnTime = 7;
 	public baseCreepSpeed = 1;
 	public baseCreepValue = 10;
 	public upgradeCost = 20;
 
-	get creeps(): Array<ICreep> {
-		return this.engine.creeps.filter(c => c.player == this.player);
-	}
-
-	constructor(private engine: EngineService, private events: EventmanagerService) {
+	constructor(private engine: EngineService, private events: EventmanagerService, public player: IPlayer) {
+		super();
 		this.subscriptions.push(events.onCreepKill.subscribe(e => {
 			if (e.killer.player === this.player) {
 				this.getGoldForCreep(e.creep);
@@ -67,14 +50,9 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 			range: 0,
 			value: 0
 		};
-	}
 
-	ngOnInit() {
-		// Initiate unit spawn loop
-		this.spawnMeleeCreepProcess();
-		setTimeout(() => {
-			this.spawnRangedCreepProcess();
-		}, 500);
+		this.x = player.coords.x;
+		this.y = player.coords.y;
 
 		this.player.barrack = this;
 	}
@@ -111,111 +89,13 @@ export class BarrackComponent implements OnInit, Barrack, OnDestroy {
 		this.player.gold += creepKilled.value;
 	}
 
-	private draw(e: DrawEvent) {
+	protected draw(e: DrawEvent) {
 		e.ctx.fillStyle = this.player.color;
 		e.ctx.fillRect(this.player.coords.x - 25,  this.player.coords.y - 25, 50, 50);
 		e.ctx.restore();
 	}
 
-	private spawnMeleeCreepProcess() {
-		this.spawnCreeps(Basher, this.meleeModifier);
-
-		setTimeout(() => {
-			this.spawnMeleeCreepProcess();
-		}, this.respawnTime * 1000);
-	}
-
-	private spawnRangedCreepProcess() {
-		this.spawnCreeps(Archer, this.rangedModifier);
-
-		setTimeout(() => {
-			this.spawnRangedCreepProcess();
-		}, this.respawnTime * 1000);
-	}
-
-	private spawnCreeps<T extends CreepBase>(creepCtor: new() => T, modifier: IStats) {
-
-		// We spawn creeps for all 3 lanes
-		for(let i = 0; i < 3; i++) {
-			const creep = new creepCtor();
-			creep.player = this.player;
-
-			// Creeps will spawn in the middle of the barracks which is 50 px large.
-			creep.x = this.player.coords.x;
-			creep.y = this.player.coords.y;
-
-			creep.statsModifier = modifier;
-
-			// Mid Lane
-			if (i === 0) {
-				creep.destinations.push(Constants.Mid);
-				switch(this.player.position) {
-					case Position.Top:
-						creep.destinations.push(Players.pos(Position.Bottom).coords);
-						break;
-					case Position.Left:
-						creep.destinations.push(Players.pos(Position.Right).coords);
-						break;
-					case Position.Bottom:
-						creep.destinations.push(Players.pos(Position.Top).coords);
-						break;
-					case Position.Right:
-						creep.destinations.push(Players.pos(Position.Left).coords);
-						break;
-				}
-			}
-
-			// Side Lane 1
-			if (i === 1) {
-				switch(this.player.position) {
-					case Position.Top:
-						creep.destinations.push(Constants.TopLeft);
-						creep.destinations.push(Players.pos(Position.Left).coords);
-						break;
-					case Position.Left:
-						creep.destinations.push(Constants.BottomLeft);
-						creep.destinations.push(Players.pos(Position.Bottom).coords);
-						break;
-					case Position.Bottom:
-						creep.destinations.push(Constants.BottomRight);
-						creep.destinations.push(Players.pos(Position.Right).coords);
-						break;
-					case Position.Right:
-						creep.destinations.push(Constants.TopRight);
-						creep.destinations.push(Players.pos(Position.Top).coords);
-						break;
-				}
-			}
-
-			// Side Lane 2
-			if (i === 2) {
-				switch(this.player.position) {
-					case Position.Top:
-						creep.destinations.push(Constants.TopRight);
-						creep.destinations.push(Players.pos(Position.Right).coords);
-						break;
-					case Position.Left:
-						creep.destinations.push(Constants.TopLeft);
-						creep.destinations.push(Players.pos(Position.Top).coords);
-						break;
-					case Position.Bottom:
-						creep.destinations.push(Constants.BottomLeft);
-						creep.destinations.push(Players.pos(Position.Left).coords);
-						break;
-					case Position.Right:
-						creep.destinations.push(Constants.BottomRight);
-						creep.destinations.push(Players.pos(Position.Bottom).coords);
-						break;
-				}
-			}
-
-			creep.health = creep.maxHealth;
-
-			this.engine.creeps.push(creep);
-		}
-	}
-
-	ngOnDestroy(): void {
+	dispose(): void {
 		this.subscriptions.forEach(s => {
 			s.unsubscribe();
 		});

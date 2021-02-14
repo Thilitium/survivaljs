@@ -25,7 +25,7 @@ export abstract class GameObject implements ICoords {
 		};
 	}
 
-	private draw(e: DrawEvent): void {
+	protected draw(e: DrawEvent): void {
 		console.warn('unable to draw GameObject ', this);
 		return;
 	}

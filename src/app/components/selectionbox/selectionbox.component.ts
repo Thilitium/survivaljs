@@ -9,8 +9,11 @@ import { RenderService } from "src/app/services/render.service";
 	template: ''
 })
 export class SelectionboxComponent implements OnDestroy {
-
-	constructor(private events: EventmanagerService, private mouse: MouseService, private render: RenderService) {
+	private events: EventmanagerService;
+	private mouse: MouseService;
+	constructor(private render: RenderService) {
+		this.events = EventmanagerService.get();
+		this.mouse = MouseService.get();
 		this.events.onDrawUi.subscribe((e) => this.draw(e));
 	}
 

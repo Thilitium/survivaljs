@@ -1,5 +1,3 @@
-import { Injectable } from '@angular/core';
-import { ICreep } from '../models/icreep';
 import { EventmanagerService } from './eventmanager.service';
 import { Position } from '../constants/enums';
 import { ICoords } from '../models/icoords';
@@ -9,20 +7,34 @@ import { Players } from './players';
 import { ProcessInputsEvent } from '../events/process-inputs-events';
 import { CreepBase } from '../models/creeps/creep-base';
 import { Math2 } from 'src/helpers/Math2';
+import { BarrackComponent } from '../components/barrack/barrack.component';
+import { IStats } from '../models/istats';
+import { Basher } from '../models/creeps/basher';
+import { Barrack } from '../models/barrack';
+import { Archer } from '../models/creeps/archer';
 
-@Injectable({
-	providedIn: 'root'
-})
 export class EngineService {
 	public creeps: Array<CreepBase>;
 	private navMesh: NavMesh;
+	private events: EventmanagerService = null;
+	private frameCount: number = 0;
 
 	// Tick rate in ms.
 	private tickRate = 16;
 
-	constructor(private events: EventmanagerService) {
-		this.creeps = [];
+	private static _instance: EngineService = null;
 
+	public static get() {
+		if(this._instance === null){
+			this._instance = new this();
+		}
+
+		return this._instance;
+	}
+
+	private constructor() {
+		this.creeps = [];
+		this.events = EventmanagerService.get();
 		this.navMesh = this.constructNavMech();
 		this.setPlayers();
 	}
@@ -32,7 +44,7 @@ export class EngineService {
 	}
 
 	private setPlayers() {
-		Players.add(
+		const p1 = Players.add(
 			{
 				name: 'one',
 				alive: true,
@@ -45,7 +57,7 @@ export class EngineService {
 				color: 'rgb(0, 0, 255)'
 			}
 		);
-		Players.add(
+		const p2 = Players.add(
 			{
 				name: 'two',
 				alive: true,
@@ -58,7 +70,7 @@ export class EngineService {
 				color: 'rgb(255, 0, 0)'
 			}
 		);
-		Players.add(
+		const p3 = Players.add(
 			{
 				name: 'three',
 				alive: true,
@@ -71,7 +83,7 @@ export class EngineService {
 				color: 'rgb(0, 255, 0)'
 			}
 		);
-		Players.add(
+		const p4 = Players.add(
 			{
 				name: 'four',
 				alive: true,
@@ -84,6 +96,11 @@ export class EngineService {
 				color: 'rgb(240, 240, 240)'
 			}
 		);
+
+		new BarrackComponent(this, this.events, p1);
+		new BarrackComponent(this, this.events, p2);
+		new BarrackComponent(this, this.events, p3);
+		new BarrackComponent(this, this.events, p4);
 	}
 
 	private constructNavMech(): NavMesh {
@@ -155,15 +172,17 @@ export class EngineService {
 
 	private gameLoop() {
 		setTimeout(() => {
+			this.frameCount++;
 			this.events.onProcessInputs.emit(new ProcessInputsEvent());
-			this.checkTargets();
+			this.spawnCreepsProcess();
 			this.updateSpeed();
 			this.attackProcess();
 			this.checkDeadCreeps();
+			this.checkTargets();
 			this.checkCreepsWaypoints();
 			this.moveCreeps();
 			this.gameLoop();
-		}, 16);
+		}, this.tickRate);
 	}
 
 	private updateSpeed() {
@@ -231,15 +250,9 @@ export class EngineService {
 	}
 
 	private checkDeadCreeps() {
-		const deadCreepsIndexes = [];
-		this.creeps.forEach((creep, i) => {
-			if (creep.health <= 0) {
-				deadCreepsIndexes.unshift(i);
-			}
-		});
-		deadCreepsIndexes.forEach(i => {
-			this.events.onCreepDied.emit({ creep: this.creeps[i] });
-			this.creeps.splice(i, 1);
+		this.creeps.filter(c => c.health <= 0).forEach(c => {
+			this.creeps.splice(this.creeps.indexOf(c), 1)
+			c.dispose();
 		});
 	}
 
@@ -283,5 +296,99 @@ export class EngineService {
 				}
 			}
 		});
+	}
+
+	private spawnCreepsProcess() {
+		// Melee creeps
+		Players.getAll().forEach(player => {
+			if (player.barrack.lastSpawnTime === 0 || player.barrack.lastSpawnTime < (this.frameCount * this.tickRate) - (player.barrack.respawnTime * 1000)){
+				this.spawnCreeps<Basher>(player.barrack, Basher, player.barrack.meleeModifier);
+				setTimeout(() => {
+					this.spawnCreeps<Archer>(player.barrack, Archer, player.barrack.meleeModifier);
+				}, (500));
+				player.barrack.lastSpawnTime = this.tickRate * this.frameCount;
+			}
+		});
+	}
+
+	private spawnCreeps<T extends CreepBase>(barrack: Barrack, creepCtor: new() => T, modifier: IStats) {
+		// We spawn creeps for all 3 lanes
+		for(let i = 0; i < 3; i++) {
+			const creep = new creepCtor();
+			creep.player = barrack.player;
+
+			// Creeps will spawn in the middle of the barracks which is 50 px large.
+			creep.x = barrack.player.coords.x;
+			creep.y = barrack.player.coords.y;
+
+			creep.statsModifier = modifier;
+
+			// Mid Lane
+			if (i === 0) {
+				creep.destinations.push(Constants.Mid);
+				switch(barrack.player.position) {
+					case Position.Top:
+						creep.destinations.push(Players.pos(Position.Bottom).coords);
+						break;
+					case Position.Left:
+						creep.destinations.push(Players.pos(Position.Right).coords);
+						break;
+					case Position.Bottom:
+						creep.destinations.push(Players.pos(Position.Top).coords);
+						break;
+					case Position.Right:
+						creep.destinations.push(Players.pos(Position.Left).coords);
+						break;
+				}
+			}
+
+			// Side Lane 1
+			if (i === 1) {
+				switch(barrack.player.position) {
+					case Position.Top:
+						creep.destinations.push(Constants.TopLeft);
+						creep.destinations.push(Players.pos(Position.Left).coords);
+						break;
+					case Position.Left:
+						creep.destinations.push(Constants.BottomLeft);
+						creep.destinations.push(Players.pos(Position.Bottom).coords);
+						break;
+					case Position.Bottom:
+						creep.destinations.push(Constants.BottomRight);
+						creep.destinations.push(Players.pos(Position.Right).coords);
+						break;
+					case Position.Right:
+						creep.destinations.push(Constants.TopRight);
+						creep.destinations.push(Players.pos(Position.Top).coords);
+						break;
+				}
+			}
+
+			// Side Lane 2
+			if (i === 2) {
+				switch(barrack.player.position) {
+					case Position.Top:
+						creep.destinations.push(Constants.TopRight);
+						creep.destinations.push(Players.pos(Position.Right).coords);
+						break;
+					case Position.Left:
+						creep.destinations.push(Constants.TopLeft);
+						creep.destinations.push(Players.pos(Position.Top).coords);
+						break;
+					case Position.Bottom:
+						creep.destinations.push(Constants.BottomLeft);
+						creep.destinations.push(Players.pos(Position.Left).coords);
+						break;
+					case Position.Right:
+						creep.destinations.push(Constants.BottomRight);
+						creep.destinations.push(Players.pos(Position.Bottom).coords);
+						break;
+				}
+			}
+
+			creep.health = creep.maxHealth;
+
+			this.creeps.push(creep);
+		}
 	}
 }

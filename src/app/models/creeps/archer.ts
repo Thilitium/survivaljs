@@ -1,8 +1,8 @@
-import { CreepBase } from './creep-base';
 import { CreepType } from 'src/app/constants/enums';
 import { IStats } from '../istats';
+import { CreepComponent } from '../../components/creep/creep.component';
 
-export class Archer extends CreepBase {
+export class Archer extends CreepComponent {
 	type: CreepType = CreepType.Archer;
 
 	baseStats: IStats = {

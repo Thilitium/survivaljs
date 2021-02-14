@@ -4,21 +4,16 @@ import { FormsModule } from '@angular/forms';
 
 
 import { AppComponent } from './app.component';
-import {
-	GameComponent,
-	BarrackComponent,
-	CreepComponent,
-	BackgroundComponent,
-	SelectionboxComponent
-} from './components';
-import { ResourcesComponent, UpgradesComponent } from './components/UI'
+import { GameComponent } from './components/game/game.component';
+import { BackgroundComponent } from './components/background/background.component';
+import { SelectionboxComponent } from './components/selectionbox/selectionbox.component';
+import { ResourcesComponent } from './components/UI/resources/resources.component';
+import { UpgradesComponent } from './components/UI/upgrades/upgrades.component';
 
 @NgModule({
 	declarations: [
 		AppComponent,
 		GameComponent,
-		BarrackComponent,
-		CreepComponent,
 		BackgroundComponent,
 		SelectionboxComponent,
 		ResourcesComponent,
@@ -26,7 +21,7 @@ import { ResourcesComponent, UpgradesComponent } from './components/UI'
 	],
 	imports: [
 		BrowserModule,
-		FormsModule
+		FormsModule,
 	],
 	providers: [
 	],

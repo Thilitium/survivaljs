@@ -8,8 +8,11 @@ import { DrawEvent } from '../events/draw-event';
 export class RenderService {
 	private ctx: CanvasRenderingContext2D;
 	private event: DrawEvent;
+	private events: EventmanagerService;
 
-	constructor(private events: EventmanagerService) { }
+	constructor() {
+		this.events = EventmanagerService.get();
+	}
 
 	public init(ctx: CanvasRenderingContext2D) {
 		this.ctx = ctx;

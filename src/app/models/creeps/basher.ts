@@ -1,8 +1,8 @@
 import { CreepType } from 'src/app/constants/enums';
 import { IStats } from '../istats';
-import { CreepBase } from './creep-base';
+import { CreepComponent } from '../../components/creep/creep.component';
 
-export class Basher extends CreepBase {
+export class Basher extends CreepComponent {
 	type: CreepType = CreepType.Basher;
 
 	baseStats: IStats = {
@@ -13,4 +13,8 @@ export class Basher extends CreepBase {
 		attackSpeed: 0.5,
 		value: 10
 	};
+
+	constructor() {
+		super();
+	}
 }

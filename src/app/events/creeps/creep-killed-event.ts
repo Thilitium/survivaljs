@@ -1,7 +1,8 @@
 import { ICreepEvent } from './icreep-event';
 import { ICreep } from '../../models/icreep';
+import { CreepBase } from 'src/app/models/creeps/creep-base';
 
 export class CreepKilledEvent  implements ICreepEvent {
-	public creep: ICreep;
-	public killer: ICreep;
+	public creep: CreepBase;
+	public killer: CreepBase;
 }

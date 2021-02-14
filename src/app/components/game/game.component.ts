@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { IPlayer } from 'src/app/models/iplayer';
+import { EngineService } from 'src/app/services/engine.service';
 import { Players } from 'src/app/services/players';
-import { EngineService } from '../../services/engine.service';
 
 @Component({
 	selector: 'app-game',
@@ -9,7 +9,10 @@ import { EngineService } from '../../services/engine.service';
 	styleUrls: ['./game.component.css']
 })
 export class GameComponent implements OnInit {
-	constructor(private engine: EngineService) { }
+	private engine: EngineService;
+	constructor() {
+		this.engine = EngineService.get();
+	}
 
 	public player: IPlayer = null;
 

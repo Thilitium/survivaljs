@@ -5,10 +5,8 @@ import { CreepShotEvent } from '../events/creeps/creep-shot-event';
 import { CreepKilledEvent } from '../events/creeps/creep-killed-event';
 import { DrawEvent } from '../events/draw-event';
 import { ProcessInputsEvent } from '../events/process-inputs-events';
+import { EventManager } from '@angular/platform-browser';
 
-@Injectable({
-	providedIn: 'root'
-})
 export class EventmanagerService {
 	public onCreepKill = new CustomEventEmitter<CreepKilledEvent>();
 	public onCreepShot = new CustomEventEmitter<CreepShotEvent>();
@@ -20,5 +18,14 @@ export class EventmanagerService {
 	public onDrawUi = new CustomEventEmitter<DrawEvent>();
 	public onProcessInputs = new CustomEventEmitter<ProcessInputsEvent>();
 
-	constructor() { }
+	private static _instance = null;
+	public static get(): EventmanagerService {
+		if(this._instance === null) {
+			this._instance = new this();
+		}
+
+		return this._instance;
+	}
+
+	private constructor() { }
 }

@@ -1,7 +1,14 @@
+import { GameObject } from './gameobject';
 import { IBuilding } from './ibuilding';
-import { ICreep } from './icreep';
+import { IPlayer } from './iplayer';
+import { IStats } from './istats';
 
-export interface Barrack extends IBuilding {
-	respawnTime: number;
-	creeps: Array<ICreep>;
+export abstract class Barrack extends GameObject implements IBuilding {
+	level: number;
+	selected: false;
+	player: IPlayer;
+	respawnTime: number; // seconds
+	lastSpawnTime: number = 0; // milliseconds
+	meleeModifier: IStats;
+	rangedModifier: IStats;
 }
